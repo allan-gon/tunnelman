@@ -1,0 +1,9 @@
+# matches everything
+*/
+*
+# except for these
+!.gitignore
+!Actor.h
+!Actor.cpp
+!StudentWorld.h
+!StudentWorld.cpp
