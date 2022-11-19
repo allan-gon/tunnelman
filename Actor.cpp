@@ -35,4 +35,10 @@ Entity::Entity(int imageID, int startX, int startY, Direction dir,
 
 Entity::~Entity(){};
 
+void Entity::doSomething() {return;};
+
+Tunnelman::Tunnelman(int imageID, int startX, int startY, Direction dir) : Entity(imageID, startX, startY, dir) {};
+
 Tunnelman::~Tunnelman(){};
+
+void Tunnelman::doSomething() {return;};

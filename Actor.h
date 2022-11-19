@@ -43,6 +43,7 @@ public:
          unsigned int depth = 0, bool visible = true);
   void setHitPoints(int hitPoints);
   int getHitPoints();
+    void doSomething();
   virtual ~Entity();
 
 private:
@@ -54,6 +55,7 @@ public:
   Tunnelman(int imageID = TID_PLAYER, int startX = 30, int startY = 60,
             Direction dir = right);
   // setters & getters
+    void doSomething();
   virtual ~Tunnelman();
 
 private:

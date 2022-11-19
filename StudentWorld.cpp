@@ -27,6 +27,8 @@ bool validSpawn(int x1, int y1, int x2, int y2) {
 }
 
 int StudentWorld::init() {
+    // initializes tunnelman
+    this->player = std::move(new Tunnelman());
   // TODO: actually only need 64 col, 60 row. So allocating more than needed.
   // Possibly also alloc more than needed for shaft? Though this is true,
   // not allocating those would mean instead of setting visibility, only
@@ -132,6 +134,9 @@ int StudentWorld::move() {
 }
 
 void StudentWorld::cleanUp() {
+    // frees memory from tunnelman
+    delete this->player;
+    this->player = nullptr;
   // free's any memory that was allocated to actors
   // and also fixes dangling pointer
 
