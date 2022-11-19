@@ -33,8 +33,11 @@ public:
 	// {
 	// }
 
+	
+
 private:
 	Earth* field[VIEW_WIDTH][VIEW_HEIGHT] = {}; // intialize multi-dim array of Earth ptrs to nullptr
+	std::pair<int, int> invalid_locs;
 	// vector<Boulder*> boulders;
 	// TunnelMan* player = nullptr;
 	// likely everything below this line will live in a single vector where we downcast them
