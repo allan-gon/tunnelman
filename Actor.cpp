@@ -15,7 +15,7 @@ void Actor::setAlive(bool alive) { this->is_alive = alive; }
 
 Earth::Earth(bool visible, int startX, int startY, int imageID, Direction dir,
              double size, unsigned int depth)
-    : Actor(visible, imageID, startX, startY, dir, size, depth) {}
+    : Actor(visible, imageID, startX, startY, dir, depth, size) {}
 
 Boulder::Boulder(bool visible, int startX, int startY, int imageID,
                  Direction dir, unsigned int depth)
