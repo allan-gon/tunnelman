@@ -1,8 +1,9 @@
 #ifndef STUDENTWORLD_H_
 #define STUDENTWORLD_H_
 
-#include "GameWorld.h"
 #include "GameConstants.h"
+#include "GameWorld.h"
+#include "Actor.h"
 #include <string>
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
@@ -15,24 +16,34 @@ public:
 	{
 	}
 
-	virtual int init()
-	{
-		return GWSTATUS_CONTINUE_GAME;
-	}
+	virtual int init();
+	// {
+	// 	return GWSTATUS_CONTINUE_GAME;
+	// }
 
-	virtual int move()
-	{
-		// This code is here merely to allow the game to build, run, and terminate after you hit enter a few times.
-		// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
-		decLives();
-		return GWSTATUS_PLAYER_DIED;
-	}
+	virtual int move();
+	// {
+	// 	// This code is here merely to allow the game to build, run, and terminate after you hit enter a few times.
+	// 	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
+	// 	decLives();
+	// 	return GWSTATUS_PLAYER_DIED;
+	// }
 
-	virtual void cleanUp()
-	{
-	}
+	virtual void cleanUp();
+	// {
+	// }
 
 private:
+	Earth* field[VIEW_WIDTH][VIEW_HEIGHT] = {}; // intialize multi-dim array of Earth ptrs to nullptr
+	// vector<Boulder*> boulders;
+	// TunnelMan* player = nullptr;
+	// likely everything below this line will live in a single vector where we downcast them
+	// may use rtti or better, in actor class have a protected variable
+	// vector<Protestor*> protestors;
+	// vector<Gold*> gold;
+	// vector<Oil*> oil;
+	// vector<Water*> water;
+	// vector<Sonar*> sonar;
 };
 
 #endif // STUDENTWORLD_H_
