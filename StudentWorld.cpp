@@ -115,7 +115,7 @@ int StudentWorld::init() {
         // enough. if 4 to the right, under or right + under then visibility
         // should be false
         visible = false; // not working. supposed to handle Earth that exists
-                         // under Dirt. I think it's becaue 4 blocks?
+        // under Dirt. I think it's becaue 4 blocks?
       } else {
         visible = true;
       };
