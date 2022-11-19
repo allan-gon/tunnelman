@@ -56,3 +56,11 @@ x and y
 - `Conceptual Solution`: if I can map the space, then I can say what locations are open and randomly select one of them
 
 - `Problem`: I have to randomly place non-entities (NE) such that none of them are with 6 units of eachother. With a small amount of NE this is easy. A naive approach would be to randomly select x and y coords then check against all existing NE. If the condition of 6 units is not violated then I can use the coords otherwise regenerate the coords. What if I get REALLY unlucky? My game could pause for minutes while trying to spawn NE. This is very unlikely with a small number of NE but as number of NE grows likelyhood of randomly generating an invalid coord increases. I need an efficient way to mapp the space return all possible locations and randomly select one fo those.
+
+- if you pass an arguement by move, at the end of the function call, does the original variable retain it's value?
+
+# **NOTE**
+- code wil be tested with orignal version of files except for the 4 we are editing. This means that my code,right now, will fail because I added variabeles to GameConstants.h . Would have also failed for anyone that doesn't have my version fo the files since git ignores GameConstants.h among other things
+
+# TODO:
+- figure out why sometimes is spits out a bunch of numbers. I think it's because Im getting unlucky randomly selecting coords but could be cap.

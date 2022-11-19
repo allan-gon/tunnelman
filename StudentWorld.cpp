@@ -1,13 +1,27 @@
-#include "GameConstants.h"
 #include "StudentWorld.h"
 #include "Actor.h"
 #include <string>
 #include <vector>
 #include <random>
-#include <algorithm>
+#include <algorithm> // this guys needed because find cries without
 using namespace std;
 
-// TODO: Check naive approach and visiblity of Earth
+// START ALLAN'S CHANGES
+
+// field dimenstions
+const int ROWS = 60;
+const int COLS = 64;
+
+// max number of spawnanble consumables on a single level
+const unsigned int MAX_BOULDERS = 9;
+const unsigned int MAX_GOLD_NUGGETS = 2;
+const unsigned int MAX_OIL_BARRELS = 21;
+
+// END ALLAN'S CHANGES
+
+// TODO: visiblity of Earth
+// Currently clips through shaft because if location is left of shaft,
+// boulder spawns but since size is diff than earth, takes up 4x4
 
 GameWorld* createStudentWorld(string assetDir)
 {
@@ -18,7 +32,6 @@ bool validSpawn(int x1, int y1, int x2, int y2){
 	// returns whether or not the distance between point 1
 	// and point 2 is > 6. Helper for StudentWorld::init
 	float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
-	std::cout << dist << endl;
 	return dist > 6;
 }
 
@@ -57,7 +70,10 @@ int StudentWorld::init(){
 			int potential_x, potential_y; // randomly generate x and y
 			potential_x = col_dist(gen);
 			potential_y = row_dist(gen);
-			if ((potential_x < 29) || (potential_x > 34)){ // not at shaft
+			std::cout << potential_x << endl;
+			// changed to 29 - 3. i think this will keep it from clipping the shaft
+			if ((potential_x < (29 - 3)) || (potential_x > 34)){ // not at shaft
+				// i think this cond ius gargabe. dist produces that so...
 				if ((potential_y > 19) && (potential_y < 57)){ // row [20, 56] like spec
 					vector<int> temp = {potential_x, potential_y};
 					if (find(invalid_locs.begin(), invalid_locs.end(), temp) == invalid_locs.end()){ // location is not taken
@@ -89,11 +105,22 @@ int StudentWorld::init(){
 			vector<int> temp = {col, row};
 			if (row < 4){ // if bottom 4 rows
 				visible = true;
-			} else if (row > 59){ // if top 4 rows
-				visible = false;
-			} else if ((col > 29) && (col < 34)){ // if shaft
+			} 
+			// i think this condition in no longer necessary because of consts added
+			// else if (row > 59){ // if top 4 rows
+			// 	visible = false;
+			// } 
+			// consider not even allocating here
+			else if ((col > 29) && (col < 34)){ // if shaft
 				visible = false;
 			} else if (find(invalid_locs.begin(), invalid_locs.end(), temp) != invalid_locs.end()){ // if a boulder is there
+				// there are a couple reason a block should be invisible.
+				// in block has same coords as other NE
+				// if block is withing coords of ther NE + size.
+				// for example a dirt block should not appear in a 4 block swuare of a boulder
+				// because the boulder is there, however simply setting any Earth obj's
+				// visibility to false if coords match exactly is not enough.
+				// if 4 to the right, under or right + under then visibility should be false 
 				visible = false; // not working. supposed to handle Earth that exists under Dirt. I think it's becaue 4 blocks?
 			}
 			else {visible = true;};
@@ -127,6 +154,3 @@ void StudentWorld::cleanUp(){
 		this->boulders.erase(this->boulders.begin() + i - 1); // this may break but i think it's fine
 	}
 }
-
-// i need a function that takes an existing objects location
-// and returns whether a proposed location is valid
