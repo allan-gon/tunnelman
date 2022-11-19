@@ -4,29 +4,56 @@
 #include "GraphObject.h"
 #include "StudentWorld.h"
 
-// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
-// comment
 
-class Entity : public GraphObject {
+class Actor : public GraphObject {
 public:
-    Entity(int imageID, int startX, int startY, Direction dir, double size, unsigned int depth, int hit_points): GraphObject(imageID, startX, startY, dir, size, depth), m_hitPoints(hit_points)
-    {
-        setVisible(true);
-    }
+  Actor(bool visible, int imageID, int startX, int startY, Direction dir, unsigned int depth,
+        double size = 1.0);
+  virtual void doSomething() = 0;
+  bool getAlive();
+  void setAlive(bool alive);
 
-    ~Entity();
 private:
-    int m_hitPoints = 0;
+  bool is_alive = true;
+};
+
+class Earth : public Actor {
+public:
+  Earth(bool visible, int startX, int startY, int imageID = TID_EARTH,
+        Direction dir = right, double size = 0.25, unsigned int depth = 3);
+  virtual void doSomething() {
+    return;
+  }; // actually does nothing but needed because earth and boulder share a
+     // parent which has this func as pure virtual
+};
+
+class Boulder : public Actor {
+public:
+  Boulder(bool visible, int startX, int startY, int imageID = TID_BOULDER,
+          Direction dir = down, unsigned int depth = 1);
+  virtual void doSomething();
+
+private:
+  bool is_stable = true;
+};
+
+// start of refactor
+
+class Entity : public Actor {
+public:
+    Entity(int imageID, int startX, int startY, Direction dir, unsigned int depth = 0, bool visible = true);
+    void setHitPoints(int hitPoints);
+    int getHitPoints();
+    virtual ~Entity();
+private:
+    int m_hitPoints;
 };
 
 class Tunnelman : public Entity {
 public:
-    Tunnelman(int imageID, int startX, int startY, Direction dir, double size, unsigned int depth, int hit_points, int water_units, int sonar_charge, int gold): Entity(TID_PLAYER, 30, 60, right, 1.0, 0, 10) //, m_waterUnits(water_units), m_sonarCharge(sonar_charge), m_gold(gold)
-        {
-            // setVisible(true);
-        }
-    
-    ~Tunnelman();
+    Tunnelman(int imageID = TID_PLAYER, int startX = 30, int startY = 60, Direction dir = right);
+    // setters & getters
+    virtual ~Tunnelman();
 private:
     int m_waterUnits = 5;
     int m_sonarCharge = 1;
