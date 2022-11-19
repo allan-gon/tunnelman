@@ -5,6 +5,7 @@
 #include "GameWorld.h"
 #include "Actor.h"
 #include <string>
+#include <vector>
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
@@ -33,12 +34,11 @@ public:
 	// {
 	// }
 
-	
+
 
 private:
 	Earth* field[VIEW_WIDTH][VIEW_HEIGHT] = {}; // intialize multi-dim array of Earth ptrs to nullptr
-	std::pair<int, int> invalid_locs;
-	// vector<Boulder*> boulders;
+	std::vector<Boulder*> boulders; // for now vec of boulder should downcast and have all actors in a single vec
 	// TunnelMan* player = nullptr;
 	// likely everything below this line will live in a single vector where we downcast them
 	// may use rtti or better, in actor class have a protected variable

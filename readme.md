@@ -46,8 +46,8 @@ f"Lvl: {self.level} Lives {self.lives} Hlth: {self.health}% Wtr: {self.water} Gl
 # New rules
 - non-entitys can't spawn within 6 units of eachother
 - must spawn actors randomly
-- nuggets and oil between (0, 0) and (60, 56) (ROW, COL)
-- boulders between (0, 20) and (60, 56)
+- nuggets and oil between (0, 0) and (60, 56) (COL, ROW)
+- boulders between (0, 20) and (60, 56) **PAGE 17**
 - **Problem**: I need to be able to randomly place objects, but as levels increase, more
 non-entitys will be spawned so simply generating a random x, y and checking against all non-entitys
 is no good. Need to efficienlty map the space and randomly select a valid node, taking on that nodes

@@ -17,9 +17,9 @@ Boulder::Boulder(bool visible, int startX, int startY, int imageID, Direction di
 Actor(visible, imageID, startX, startY, dir, size, depth){}
 
 void Boulder::doSomething(){
-    if (this->getAlive()){
-        if (this->is_stable){
-            
-        }
-    } return;
+//     if (this->getAlive()){
+//         if (this->is_stable){
+
+//         }
+//     } return;
 }
