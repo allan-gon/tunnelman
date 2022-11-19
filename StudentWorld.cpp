@@ -14,10 +14,18 @@ GameWorld* createStudentWorld(string assetDir)
 int StudentWorld::init(){
 	// initializes all game object when game start, or level resets/changes
 	
+	bool visible; // variable used to assign an Earth block's visibility based off location
 	// initialize field of Earth objects
 	for (int row = 0; row < VIEW_HEIGHT; row++){
 		for (int col = 0; col < VIEW_WIDTH; col++){
-			this->field[col][row] = std::move(new Earth(true, col, row));
+			if (row < 4){ // if bottom 4 rows
+				visible = true;
+			} else if (row > 59){ // if top 4 rows
+				visible = false;
+			} else if ((col > 29) && (col < 34)){
+				visible = false;
+			} else {visible = true;};
+			this->field[col][row] = std::move(new Earth(visible, col, row));
 			// for now every square is shown
 		}
 	}
