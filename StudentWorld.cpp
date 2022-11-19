@@ -122,7 +122,7 @@ int StudentWorld::init() {
       this->field[col][row] = std::move(new Earth(visible, col, row));
     }
   }
-  // initialize other NEs
+  // TODO: initialize other NEs
   return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -136,8 +136,8 @@ void StudentWorld::cleanUp() {
   // and also fixes dangling pointer
 
   // frees memory from Earth object
-  for (int row = 0; row < VIEW_HEIGHT; row++) {
-    for (int col = 0; col < VIEW_WIDTH; col++) {
+  for (int row = 0; row < ROWS; row++) {
+    for (int col = 0; col < COLS; col++) {
       delete this->field[col][row];
       this->field[col][row] = nullptr;
     }
