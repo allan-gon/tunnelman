@@ -17,7 +17,9 @@ GameWorld* createStudentWorld(string assetDir)
 bool validSpawn(int x1, int y1, int x2, int y2){
 	// returns whether or not the distance between point 1
 	// and point 2 is > 6. Helper for StudentWorld::init
-	return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2)) > 6;
+	float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+	std::cout << dist << endl;
+	return dist > 6;
 }
 
 // Students:  Add code to this file (if you wish), StudentWorld.h, Actor.h and Actor.cpp
@@ -44,6 +46,7 @@ int StudentWorld::init(){
     std::mt19937 gen(rd()); // seed the generator
     std::uniform_int_distribution<> col_dist(0, 60); // set range, inclusive
 	std::uniform_int_distribution<> row_dist(20, 56); // could be improved, only 
+	bool distance_cond_met = true;
 	bool randomly_placed = false;
 	vector<vector<int>> invalid_locs;
 	// place boulders
@@ -58,14 +61,21 @@ int StudentWorld::init(){
 				if ((potential_y > 19) && (potential_y < 57)){ // row [20, 56] like spec
 					vector<int> temp = {potential_x, potential_y};
 					if (find(invalid_locs.begin(), invalid_locs.end(), temp) == invalid_locs.end()){ // location is not taken
-						// need to check via naive approach
-						randomly_placed = true; // break loop
-						this->boulders.push_back(std::move(new Boulder(true, potential_x, potential_y))); // save it
+						for (auto boulder: this->boulders){ // check distacne against each NE
+							if (!(validSpawn(boulder->getX(), boulder->getY(), potential_x, potential_y))){ // if violate distnace rule
+								distance_cond_met = false;
+								break;
+							}
+						} if (distance_cond_met){
+							this->boulders.push_back(std::move(new Boulder(true, potential_x, potential_y))); // save it
+							randomly_placed = true; // break loop
+						}
 					}
 				}
 			}
 
 		}
+		distance_cond_met = true;
 		randomly_placed = false; // reset for next iter
 	}
 
