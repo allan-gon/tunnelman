@@ -27,8 +27,8 @@ bool validSpawn(int x1, int y1, int x2, int y2) {
 }
 
 int StudentWorld::init() {
-    // initializes tunnelman
-    this->player = std::move(new Tunnelman());
+    // initializes tunnelman & provides the studentWorld address
+    this->player = std::move(new Tunnelman(*this));
   // TODO: actually only need 64 col, 60 row. So allocating more than needed.
   // Possibly also alloc more than needed for shaft? Though this is true,
   // not allocating those would mean instead of setting visibility, only
@@ -130,6 +130,8 @@ int StudentWorld::init() {
 
 int StudentWorld::move() {
   // right now just returns a good status so i can see stuff on screen
+    //testing tunnelman doSomething
+    player->doSomething();
   return GWSTATUS_CONTINUE_GAME;
 }
 
