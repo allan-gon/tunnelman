@@ -167,7 +167,11 @@ bool StudentWorld::dirtExists(int x, int y) {
 
 void StudentWorld::digDirtLR(int x, int y) {
     for (int i = 0; i < 4; i++) {
-        field[x][y + i]->setVisible(false);
+        if ((y + i) < 60) {     // checks if the position is not in the top 4 rows
+            if (field[x][y + i]->isVisible() == true) {     // only detsVisible to false if currently visible
+                field[x][y + i]->setVisible(false);
+            }
+        }
     }
 }
 
