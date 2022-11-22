@@ -166,13 +166,23 @@ bool StudentWorld::dirtExists(int x, int y) {
 }
 
 void StudentWorld::digDirtLR(int x, int y) {
+   // bool dug = false;
     for (int i = 0; i < 4; i++) {
-        field[x][y + i]->setVisible(false);
+        if (y + i < 60) {           // fixes issue when TM is digging in the top rows
+            if (field[x][y + i]->isVisible() == true) {     // check if we can use this function
+                field[x][y + i]->setVisible(false);
+                // dug = true;
+            }
+        }
     }
+//    if (dug == true) {
+//        playSound(SOUND_DIG);
+//    }
 }
 
 void StudentWorld::digDirtUD(int x, int y) {
     for (int i = 0; i < 4; i++) {
         field[x + i][y]->setVisible(false);
     }
+    // playSound(SOUND_DIG);
 }
