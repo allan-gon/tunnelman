@@ -48,7 +48,7 @@ public:
     
     virtual void setHitPoints(int hitPoints);
     int getHitPoints();
-    virtual void doSomething();
+    virtual void doSomething() = 0;
     
     virtual ~Entity();
 

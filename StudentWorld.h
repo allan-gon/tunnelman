@@ -30,7 +30,12 @@ public:
   virtual void cleanUp();
   // {
   // }
-
+    
+    // getting earth field info
+    bool dirtExists(int x, int y);
+    void digDirtLR(int x, int y);
+    void digDirtUD(int x, int y);
+    
 private:
   Earth *field[VIEW_WIDTH][VIEW_HEIGHT] =
       {}; // intialize multi-dim array of Earth ptrs to nullptr

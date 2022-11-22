@@ -74,7 +74,13 @@ void Tunnelman::doSomething() {
                 case KEY_PRESS_LEFT:
                     // checks if TM is facting the same direction as the key
                     if (this->getDirection() == left) {
+                        // prevents TM from going out of bounds
                         if (this->getX() != 0) {
+                            // checks if there is dirt in the space that TM wants to move to
+                            if (getWorld()->dirtExists(this->getX() - 1, this->getY()) == true) {
+                                // needs to set earth to not visible
+                                getWorld()->digDirtLR(this->getX() - 1, this->getY());
+                            }
                             moveTo(this->getX() - 1, this->getY());
                         }
                     }
@@ -85,6 +91,9 @@ void Tunnelman::doSomething() {
                 case KEY_PRESS_RIGHT:
                     if (this->getDirection() == right) {
                         if (this->getX() != 60) {
+                            if (getWorld()->dirtExists(this->getX() + 1, this->getY()) == true) {
+                                getWorld()->digDirtLR(this->getX() + 4, this->getY());
+                            }
                             moveTo(this->getX() + 1, this->getY());
                         }
                     }
@@ -95,6 +104,11 @@ void Tunnelman::doSomething() {
                 case KEY_PRESS_UP:
                     if (this->getDirection() == up) {
                         if (this->getY() != 60) {
+                            if (getWorld()->dirtExists(this->getX(), this->getY() + 1) == true) {
+                                if (this->getY() < 56) {
+                                    getWorld()->digDirtUD(this->getX(), this->getY() + 4);
+                                }
+                            }
                             moveTo(this->getX(), this->getY() + 1);
                         }
                     }
@@ -105,6 +119,9 @@ void Tunnelman::doSomething() {
                 case KEY_PRESS_DOWN:
                     if (this->getDirection() == down) {
                         if (this->getY() != 0) {
+                            if (getWorld()->dirtExists(this->getX(), this->getY() - 1) == true) {
+                                getWorld()->digDirtUD(this->getX(), this->getY() - 1);
+                            }
                             moveTo(this->getX(), this->getY() - 1);
                         }
                     }
