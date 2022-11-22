@@ -3,10 +3,14 @@
 
 #include "GraphObject.h"
 
+// forward declaration to use studentWorld pointer
+class StudentWorld;
+
 class Actor : public GraphObject {
 public:
   Actor(bool visible, int imageID, int startX, int startY, Direction dir,
         unsigned int depth, double size = 1.0);
+    
   virtual void doSomething() = 0;
   bool getAlive();
   void setAlive(bool alive);
@@ -39,27 +43,44 @@ private:
 
 class Entity : public Actor {
 public:
-  Entity(int imageID, int startX, int startY, Direction dir,
+    Entity(int imageID, int startX, int startY, Direction dir,
          unsigned int depth = 0, bool visible = true);
-  void setHitPoints(int hitPoints);
-  int getHitPoints();
-  virtual ~Entity();
+    
+    virtual void setHitPoints(int hitPoints);
+    int getHitPoints();
+    virtual void doSomething() = 0;
+    
+    virtual ~Entity();
 
 private:
-  int m_hitPoints;
+    int m_hitPoints;
 };
 
 class Tunnelman : public Entity {
 public:
-  Tunnelman(int imageID = TID_PLAYER, int startX = 30, int startY = 60,
+    // added a parameter to get the studentWorld address
+    Tunnelman(StudentWorld& game, int imageID = TID_PLAYER, int startX = 30, int startY = 60,
             Direction dir = right);
-  // setters & getters
-  virtual ~Tunnelman();
+    
+    // get studentWorld pointer
+    StudentWorld* getWorld();
+    // setters & getters
+    void setWaterUnits(int waterUnits);                 //
+    int getWaterUnits();                                //
+    void setSonarCharge(int sonarCharge);               //
+    int getSonarCharge();                               //
+    void setGold(int gold);                             //
+    int getGold();                                      //
+    
+    virtual void doSomething();
+    virtual ~Tunnelman();
 
 private:
-  int m_waterUnits = 5;
-  int m_sonarCharge = 1;
-  int m_gold = 0;
+    int m_waterUnits = 5;
+    int m_sonarCharge = 1;
+    int m_gold = 0;
+    // added StudentWorld pointer
+    StudentWorld* m_game;
 };
 
 #endif // ACTOR_H_
