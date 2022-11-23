@@ -59,6 +59,7 @@ Tunnelman(StudentWorld& game);
                     - change the visibility
                 - move to that location
         - otherwise simply look that way
+- **IMPORTANT**: if there is earth infront of you
 
 ## StudentWorld
 - **TODO**

@@ -11,6 +11,8 @@ class StudentWorld : public GameWorld {
 public:
   StudentWorld(std::string assetDir) : GameWorld(assetDir) {}
 
+  void populateField();
+
   virtual int init();
 
   virtual int move();

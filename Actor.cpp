@@ -102,7 +102,7 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == up) {
         if (this->getY() != 60) {
           if (this->getWorld()->dirtExists(this->getX(), this->getY() + 1)) {
-            if (this->getY() < 56) { // padding since tunnel man takes a 4x4
+            if (this->getY() < 60) { // padding since tunnel man takes a 4x4
               this->getWorld()->digDirtUD(this->getX(), this->getY() + 4);
             }
           }

@@ -26,6 +26,21 @@ bool validSpawn(int x1, int y1, int x2, int y2) {
   return dist > 6;
 }
 
+void StudentWorld::populateField() {
+  for (int row = 0; row < VIEW_HEIGHT; row++) {
+    for (int col = 0; col < VIEW_WIDTH; col++) {
+      if (row < 4) {
+        this->field[col][row] = std::move(new Earth(col, row));
+      } else if (((col < 30) || (col > 33)) && (row < 60)) {
+        this->field[col][row] = std::move(new Earth(col, row));
+      } else {
+        this->field[col][row] = std::move(new Earth(col, row));
+        this->field[col][row]->setVisible(false);
+      } // i think this is the bug
+    }
+  }
+}
+
 int StudentWorld::init() {
   // initializes tunnelman & provides the studentWorld address
   this->player = std::move(new Tunnelman(*this));
@@ -105,34 +120,7 @@ int StudentWorld::init() {
 
   bool visible; // variable used to assign an Earth block's visibility based off
                 // location
-  // initialize field of Earth objects + clear out earth where boulder exists
-  for (int row = 0; row < ROWS; row++) {
-    for (int col = 0; col < COLS; col++) {
-      vector<int> temp = {col, row};
-      if (row < 4) { // if bottom 4 rows
-        visible = true;
-      }
-      // consider not even allocating here
-      else if ((col > 29) && (col < 34)) { // if shaft
-        visible = false;
-      } // else if (find(invalid_locs.begin(), invalid_locs.end(), temp) !=
-        // invalid_locs.end()) { // if a boulder is there
-        // there are a couple reason a block should be invisible.
-        // in block has same coords as other NE
-        // if block is withing coords of ther NE + size.
-        // for example a dirt block should not appear in a 4 block swuare of a
-        // boulder because the boulder is there, however simply setting any
-        // Earth obj's visibility to false if coords match exactly is not
-        // enough. if 4 to the right, under or right + under then visibility
-        // should be false
-        // visible = false; // not working. supposed to handle Earth that exists
-        // under Dirt. I think it's becaue 4 blocks?
-      else {
-        visible = true;
-      };
-      this->field[col][row] = std::move(new Earth(col, row));
-    }
-  }
+  this->populateField();
   // TODO: initialize other NEs
   return GWSTATUS_CONTINUE_GAME;
 }
@@ -154,8 +142,10 @@ void StudentWorld::cleanUp() {
   // frees memory from Earth object
   for (int row = 0; row < ROWS; row++) {
     for (int col = 0; col < COLS; col++) {
-      delete this->field[col][row];
-      this->field[col][row] = nullptr;
+      if (this->field[col][row] != nullptr) {
+        delete this->field[col][row];
+        this->field[col][row] = nullptr;
+      }
     }
   }
 
