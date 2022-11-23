@@ -21,8 +21,9 @@ private:
 
 class Earth : public Actor {
 public:
-  Earth(bool visible, int startX, int startY, int imageID = TID_EARTH,
-        Direction dir = right, double size = 0.25, unsigned int depth = 3);
+  Earth(int startX, int startY);
+  // Earth(bool visible, int startX, int startY, int imageID = TID_EARTH,
+  //       Direction dir = right, double size = 0.25, unsigned int depth = 3);
   virtual void doSomething() {
     return;
   }; // actually does nothing but needed because earth and boulder share a
