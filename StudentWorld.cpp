@@ -159,11 +159,11 @@ void StudentWorld::cleanUp() {
     }
   }
 
-  // frees memory from Boulder object
-  for (int i = this->boulders.size(); i >= 0; i--) {
-    delete this->boulders[i];
-    this->boulders.erase(this->boulders.begin() + i - 1);
-  }
+  // // frees memory from Boulder object
+  // for (int i = this->boulders.size(); i >= 0; i--) {
+  //   delete this->boulders[i];
+  //   this->boulders.erase(this->boulders.begin() + i - 1);
+  // }
 }
 
 // dirtExists

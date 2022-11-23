@@ -14,28 +14,16 @@ bool Actor::getAlive() { return this->is_alive; }
 
 void Actor::setAlive(bool alive) { this->is_alive = alive; }
 
-// Earth(bool visible, int startX, int startY, int imageID = TID_EARTH,
-// Direction dir = right, double size = 0.25, unsigned int depth = 3);
-
 Earth::Earth(int startX, int startY)
     : Actor(true, TID_EARTH, startX, startY, right, 3, 0.25) {}
 
-// Earth::Earth(bool visible, int startX, int startY, int imageID, Direction
-// dir,
-//              double size, unsigned int depth)
-//     : Actor(visible, imageID, startX, startY, dir, depth, size) {}
 
-Boulder::Boulder(bool visible, int startX, int startY, int imageID,
-                 Direction dir, unsigned int depth)
-    : Actor(visible, imageID, startX, startY, dir, depth) {}
 
-void Boulder::doSomething() {
-  //     if (this->getAlive()){
-  //         if (this->is_stable){
+// Boulder::Boulder(bool visible, int startX, int startY, int imageID,
+//                  Direction dir, unsigned int depth)
+//     : Actor(visible, imageID, startX, startY, dir, depth) {}
 
-  //         }
-  //     } return;
-}
+// void Boulder::doSomething() {};
 
 Entity::Entity(int imageID, int startX, int startY, Direction dir,
                unsigned int depth, bool visible)

@@ -22,23 +22,19 @@ private:
 class Earth : public Actor {
 public:
   Earth(int startX, int startY);
-  // Earth(bool visible, int startX, int startY, int imageID = TID_EARTH,
-  //       Direction dir = right, double size = 0.25, unsigned int depth = 3);
-  virtual void doSomething() {
-    return;
-  }; // actually does nothing but needed because earth and boulder share a
-     // parent which has this func as pure virtual
+  // required because parent is pure virtual
+  virtual void doSomething() {return;};
 };
 
-class Boulder : public Actor {
-public:
-  Boulder(bool visible, int startX, int startY, int imageID = TID_BOULDER,
-          Direction dir = down, unsigned int depth = 1);
-  virtual void doSomething();
+// class Boulder : public Actor {
+// public:
+//   Boulder(bool visible, int startX, int startY, int imageID = TID_BOULDER,
+//           Direction dir = down, unsigned int depth = 1);
+//   virtual void doSomething();
 
-private:
-  bool is_stable = true;
-};
+// private:
+//   bool is_stable = true;
+// };
 
 // start of refactor
 

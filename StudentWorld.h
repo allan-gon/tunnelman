@@ -30,19 +30,19 @@ public:
   virtual void cleanUp();
   // {
   // }
-    
-    // getting earth field info
-    bool dirtExists(int x, int y);
-    void digDirtLR(int x, int y);
-    void digDirtUD(int x, int y);
-    
+
+  // getting earth field info
+  bool dirtExists(int x, int y);
+  void digDirtLR(int x, int y);
+  void digDirtUD(int x, int y);
+
 private:
   Earth *field[VIEW_WIDTH][VIEW_HEIGHT] =
       {}; // intialize multi-dim array of Earth ptrs to nullptr
-  std::vector<Boulder *> boulders; // for now vec of
-  // boulder should downcast and have all actors in a single vec
-    Tunnelman* player = nullptr;
-    // likely everything below this line will live in a single
+          // std::vector<Boulder *> boulders; // for now vec of
+          // boulder should downcast and have all actors in a single vec
+  Tunnelman *player = nullptr;
+  // likely everything below this line will live in a single
   // vector where we downcast them may use rtti or better, in actor class have a
   // protected variable vector<Protestor*> protestors; vector<Gold*> gold;
   // vector<Oil*> oil;
