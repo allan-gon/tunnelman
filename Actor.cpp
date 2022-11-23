@@ -17,17 +17,18 @@ void Actor::setAlive(bool alive) { this->is_alive = alive; }
 Earth::Earth(int startX, int startY)
     : Actor(true, TID_EARTH, startX, startY, right, 3, 0.25) {}
 
-
-
 // Boulder::Boulder(bool visible, int startX, int startY, int imageID,
 //                  Direction dir, unsigned int depth)
 //     : Actor(visible, imageID, startX, startY, dir, depth) {}
 
 // void Boulder::doSomething() {};
+// right, 0, true
+Entity::Entity(int imageID, int startX, int startY)
+    : Actor(true, imageID, startX, startY, right, 0) {}
 
-Entity::Entity(int imageID, int startX, int startY, Direction dir,
-               unsigned int depth, bool visible)
-    : Actor(visible, imageID, startX, startY, dir, depth) {}
+// Entity::Entity(int imageID, int startX, int startY, Direction dir,
+//                unsigned int depth, bool visible)
+//     : Actor(visible, imageID, startX, startY, dir, depth) {}
 
 void Entity::setHitPoints(int hitPoints) { this->m_hitPoints = hitPoints; }
 
@@ -38,11 +39,15 @@ void Entity::doSomething() { return; }
 Entity::~Entity() {}
 
 // added the StudentWorld address & initializes the member variable
-Tunnelman::Tunnelman(StudentWorld &game, int imageID, int startX, int startY,
-                     Direction dir)
-    : Entity(imageID, startX, startY, dir), m_game(&game) {
+Tunnelman::Tunnelman(StudentWorld &game) : Entity(TID_PLAYER, 30, 60) {
   this->setHitPoints(10);
 }
+
+// Tunnelman::Tunnelman(StudentWorld &game, int imageID, int startX, int startY,
+//                      Direction dir)
+//     : Entity(imageID, startX, startY, dir), m_game(&game) {
+//   this->setHitPoints(10);
+// }
 
 // added to get access to getKey()
 StudentWorld *Tunnelman::getWorld() { return m_game; }

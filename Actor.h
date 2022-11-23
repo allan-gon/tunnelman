@@ -40,8 +40,15 @@ public:
 
 class Entity : public Actor {
 public:
-    Entity(int imageID, int startX, int startY, Direction dir,
-         unsigned int depth = 0, bool visible = true);
+// bool visible, int imageID, int startX, int startY, Direction dir,
+//         unsigned int depth, double size = 1.0
+
+// direction is always right, depth is always 0,
+// always visibile, size is always 1.0 but handled by parent
+    Entity(int imageID, int startX, int startY);
+
+    // Entity(int imageID, int startX, int startY, Direction dir,
+    //      unsigned int depth = 0, bool visible = true);
     
     virtual void setHitPoints(int hitPoints);
     int getHitPoints();
@@ -56,8 +63,11 @@ private:
 class Tunnelman : public Entity {
 public:
     // added a parameter to get the studentWorld address
-    Tunnelman(StudentWorld& game, int imageID = TID_PLAYER, int startX = 30, int startY = 60,
-            Direction dir = right);
+    // Tunnel man imageID, x, y, are always the same
+    Tunnelman(StudentWorld& game);
+
+    // Tunnelman(StudentWorld& game, int imageID = TID_PLAYER, int startX = 30, int startY = 60,
+    //         Direction dir = right);
     
     // get studentWorld pointer
     StudentWorld* getWorld();
