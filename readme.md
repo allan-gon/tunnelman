@@ -1,3 +1,61 @@
+# Docs
+There are a lot of classes and tons of code so lets start with the simplest unit
+
+## GraphObject
+- Everything except the game world inherits from this
+- it has this constructor signature
+```cpp
+GraphObject(int imageID, int startX, int startY, Direction dir = right, double size = 1.0, unsigned int depth = 0)
+```
+- **Important**: direction, size, and depth have a dedfault arguments right, 1.0, and 0 respectively
+
+## Actor
+- Inherits from GraphObject
+- Serves as the parent to most game objects
+- It has this constructor signature
+```cpp
+Actor(bool visible, int imageID, int startX, int startY, Direction dir, unsigned int depth, double size = 1.0);
+```
+- **Important**: new parameter `visible`. Required because some game objects are no immediately visible (ae. oil, gold). Sets visible in constructor. Also default value for `size` because MOST game objects have same size
+- `doSomething` is a pure virtual function for the Actor class
+
+## Earth
+- Inherits from Actor
+- This is the constructor signature
+```cpp
+Earth(int startX, int startY);
+```
+- only takes coordinates because all arguments required by Actor are the **same** for all Earth Objects. Think visibility, imageID, direction, size, and depth -> true, TID_EARTH, right, 3, 0.25
+- The doSomething function simply returns since Earth doesn't do anything but has to be implemented because it's pure virtual in the parent
+
+## Entity
+- Inherits from Actor
+- Serves as the parent class of Tunnelman and protesters
+- This is the constructor signature
+```cpp
+Entity(int imageID, int startX, int startY);
+```
+- Only takes imageID, startX, startY because all other arguments required by the parent are the same for entities (ae. visibility=true, direction=right, depth=0). Size is 1 but not explicitly set here because that's the default in Actor
+- Entities get a attribuite hitpoints. So also gets setter and getters for that.
+- doSomething is also pure virtual here because what a Tunnelman does is different from protesters
+
+## Tunnelman
+- This is the player
+- Inherits from Entity
+- This is the constructor signature:
+```cpp
+Tunnelman(StudentWorld& game);
+```
+- When a Tunnelman digs, it must set the Earth there to invisible. That requires a StudentWorld reference (since that holds the earth)
+- Since Tunnelman always start at (30, 60), always uses same image, and always start at same direction, these are parameters. They are instead set by the consturctor.
+- Constructor set StudentWorld attribute, and hitpoints
+- Tunnelman get new attributes
+    - water, sonar, and gold (so also setters and getters)
+- `doSomething`: **TODO** too complicated to explain for now
+
+## StudentWorld
+- **TODO**
+
 # StudentWorld
 - keep strack of earth on oil field, boulders, protesters, consumables, and tunnelman
 - initializes game world at start of game, call doSomething method ono all actors, free's memory on game/level end and when an actor's state is dead
@@ -7,7 +65,7 @@
 - `move`:
     - called 10-20 times a sec (ae. our game is 20 tick)
     - calls doSomething on all of the actors
-    - after calling doSomething free memory for any actor that is dead
+    - **after calling doSomething free memory for any actor that is dead**
 - `cleanup`:
     - free all memory
     - 
@@ -18,11 +76,6 @@
 - IS_ALIVE
 - set visibility with GraphObject->setVisible()
 - Can't be annoyed
-## Earth
-- faces right
-- depth = 3
-- size = .25
-- doSomething() doesn't do anything
 ## Boulder
 - starts stable
 - faces = down
@@ -52,15 +105,3 @@ f"Lvl: {self.level} Lives {self.lives} Hlth: {self.health}% Wtr: {self.water} Gl
 non-entitys will be spawned so simply generating a random x, y and checking against all non-entitys
 is no good. Need to efficienlty map the space and randomly select a valid node, taking on that nodes
 x and y
-
-- `Conceptual Solution`: if I can map the space, then I can say what locations are open and randomly select one of them
-
-- `Problem`: I have to randomly place non-entities (NE) such that none of them are with 6 units of eachother. With a small amount of NE this is easy. A naive approach would be to randomly select x and y coords then check against all existing NE. If the condition of 6 units is not violated then I can use the coords otherwise regenerate the coords. What if I get REALLY unlucky? My game could pause for minutes while trying to spawn NE. This is very unlikely with a small number of NE but as number of NE grows likelyhood of randomly generating an invalid coord increases. I need an efficient way to mapp the space return all possible locations and randomly select one fo those.
-
-- if you pass an arguement by move, at the end of the function call, does the original variable retain it's value?
-
-# **NOTE**
-- code wil be tested with orignal version of files except for the 4 we are editing. This means that my code,right now, will fail because I added variabeles to GameConstants.h . Would have also failed for anyone that doesn't have my version fo the files since git ignores GameConstants.h among other things
-
-# TODO:
-- figure out why sometimes is spits out a bunch of numbers. I think it's because Im getting unlucky randomly selecting coords but could be cap.
