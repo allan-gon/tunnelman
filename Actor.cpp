@@ -127,33 +127,51 @@ int Tunnelman::getGold() { return this->m_gold; }
 //   }
 // };
 
-bool onEdge(int a, int b){
-  return ((a == 0) || (a == 63) || (b == 0) || (b == 63));
+bool onEdge(int a, int b) {
+  return ((a == -1) || (a == 61) || (b == -1) || (b == 61));
 }
 
-void Tunnelman::doSomething(){
+void Tunnelman::doSomething() {
   int key;
-  if (this->getAlive() && this->getWorld()->getKey(key)){ // if player is alive and a key was pressed
-    switch (key){
+  if (this->getAlive() &&
+      this->getWorld()->getKey(
+          key)) { // if player is alive and a key was pressed
+    switch (key) {
     case KEY_PRESS_LEFT:
-      if (this->getDirection() == left){
-        this->moveTo(this->getX() - 1, this->getY());
-      } else {this->setDirection(left);}
+      if (this->getDirection() == left) { // if already facing in that direction
+        if (!onEdge(this->getX(), this->getY())) { //
+          this->moveTo(this->getX() - 1, this->getY());
+        }
+      } else {
+        this->setDirection(left);
+      }
       break;
     case KEY_PRESS_RIGHT:
-      if (this->getDirection() == right){
-        this->moveTo(this->getX() + 1, this->getY());
-      } else {this->setDirection(right);}
+      if (this->getDirection() == right) {
+        if (!onEdge(this->getX() + 1, this->getY())) {
+          this->moveTo(this->getX() + 1, this->getY());
+        }
+      } else {
+        this->setDirection(right);
+      }
       break;
     case KEY_PRESS_DOWN:
-      if (this->getDirection() == down){
-        this->moveTo(this->getX(), this->getY() - 1);
-      } else {this->setDirection(down);}
+      if (this->getDirection() == down) {
+        if (!onEdge(this->getX(), this->getY() - 1)) {
+          this->moveTo(this->getX(), this->getY() - 1);
+        }
+      } else {
+        this->setDirection(down);
+      }
       break;
     case KEY_PRESS_UP:
-      if (this->getDirection() == up){
-        this->moveTo(this->getX(), this->getY() + 1);
-      } else {this->setDirection(up);}
+      if (this->getDirection() == up) {
+        if (!onEdge(this->getX(), this->getY() + 1)) {
+          this->moveTo(this->getX(), this->getY() + 1);
+        }
+      } else {
+        this->setDirection(up);
+      }
       break;
     default:
       break;
