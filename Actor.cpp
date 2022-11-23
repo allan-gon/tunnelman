@@ -1,9 +1,6 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 
-// Students:  Add code to this file (if you wish), Actor.h, StudentWorld.h, and
-// StudentWorld.cpp
-
 Actor::Actor(bool visible, int imageID, int startX, int startY, Direction dir,
              unsigned int depth, double size)
     : GraphObject(imageID, startX, startY, dir, size, depth) {
@@ -22,13 +19,9 @@ Earth::Earth(int startX, int startY)
 //     : Actor(visible, imageID, startX, startY, dir, depth) {}
 
 // void Boulder::doSomething() {};
-// right, 0, true
+
 Entity::Entity(int imageID, int startX, int startY)
     : Actor(true, imageID, startX, startY, right, 0) {}
-
-// Entity::Entity(int imageID, int startX, int startY, Direction dir,
-//                unsigned int depth, bool visible)
-//     : Actor(visible, imageID, startX, startY, dir, depth) {}
 
 void Entity::setHitPoints(int hitPoints) { this->m_hitPoints = hitPoints; }
 
@@ -43,12 +36,6 @@ Tunnelman::Tunnelman(StudentWorld &game)
     : Entity(TID_PLAYER, 30, 60), m_game(&game) {
   this->setHitPoints(10);
 }
-
-// Tunnelman::Tunnelman(StudentWorld &game, int imageID, int startX, int startY,
-//                      Direction dir)
-//     : Entity(imageID, startX, startY, dir), m_game(&game) {
-//   this->setHitPoints(10);
-// }
 
 // added to get access to getKey()
 StudentWorld *Tunnelman::getWorld() { return m_game; }
