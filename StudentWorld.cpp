@@ -168,10 +168,7 @@ void StudentWorld::cleanUp() {
 
 // dirtExists
 bool StudentWorld::dirtExists(int x, int y) {
-  if (field[x][y] == nullptr) {
-    return false;
-  }
-  return true;
+  return this->field[x][y] != nullptr;
 }
 
 void StudentWorld::digDirtLR(int x, int y) {
