@@ -51,7 +51,14 @@ Tunnelman(StudentWorld& game);
 - Constructor set StudentWorld attribute, and hitpoints
 - Tunnelman get new attributes
     - water, sonar, and gold (so also setters and getters)
-- `doSomething`: **TODO** too complicated to explain for now
+- `doSomething`: 
+    - if the player is alive and they entered a key
+        - if already facing that direction
+            - if not on an edge
+                - if there is dirt in the direction you'd like to move
+                    - change the visibility
+                - move to that location
+        - otherwise simply look that way
 
 ## StudentWorld
 - **TODO**

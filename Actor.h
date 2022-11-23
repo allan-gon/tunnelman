@@ -10,7 +10,7 @@ class Actor : public GraphObject {
 public:
   Actor(bool visible, int imageID, int startX, int startY, Direction dir,
         unsigned int depth, double size = 1.0);
-    
+
   virtual void doSomething() = 0;
   bool getAlive();
   void setAlive(bool alive);
@@ -23,7 +23,7 @@ class Earth : public Actor {
 public:
   Earth(int startX, int startY);
   // required because parent is pure virtual
-  virtual void doSomething() {return;};
+  virtual void doSomething() { return; };
 };
 
 // class Boulder : public Actor {
@@ -40,41 +40,41 @@ public:
 
 class Entity : public Actor {
 public:
-    Entity(int imageID, int startX, int startY);
-    
-    virtual void setHitPoints(int hitPoints);
-    int getHitPoints();
-    virtual void doSomething() = 0;
-    
-    virtual ~Entity();
+  Entity(int imageID, int startX, int startY);
+
+  virtual void setHitPoints(int hitPoints);
+  int getHitPoints();
+  virtual void doSomething() = 0;
+
+  virtual ~Entity();
 
 private:
-    int m_hitPoints;
+  int m_hitPoints;
 };
 
 class Tunnelman : public Entity {
 public:
-    Tunnelman(StudentWorld& game);
-    
-    // get studentWorld pointer
-    StudentWorld* getWorld();
-    // setters & getters
-    void setWaterUnits(int waterUnits);                 //
-    int getWaterUnits();                                //
-    void setSonarCharge(int sonarCharge);               //
-    int getSonarCharge();                               //
-    void setGold(int gold);                             //
-    int getGold();                                      //
-    
-    virtual void doSomething();
-    virtual ~Tunnelman();
+  Tunnelman(StudentWorld &game);
+
+  // get studentWorld pointer
+  StudentWorld *getWorld();
+  // setters & getters
+  void setWaterUnits(int waterUnits);   //
+  int getWaterUnits();                  //
+  void setSonarCharge(int sonarCharge); //
+  int getSonarCharge();                 //
+  void setGold(int gold);               //
+  int getGold();                        //
+
+  virtual void doSomething();
+  virtual ~Tunnelman();
 
 private:
-    int m_waterUnits = 5;
-    int m_sonarCharge = 1;
-    int m_gold = 0;
-    // added StudentWorld pointer
-    StudentWorld* m_game;
+  int m_waterUnits = 5;
+  int m_sonarCharge = 1;
+  int m_gold = 0;
+  // added StudentWorld pointer
+  StudentWorld *m_game;
 };
 
 #endif // ACTOR_H_
