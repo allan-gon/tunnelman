@@ -39,7 +39,8 @@ void Entity::doSomething() { return; }
 Entity::~Entity() {}
 
 // added the StudentWorld address & initializes the member variable
-Tunnelman::Tunnelman(StudentWorld &game) : Entity(TID_PLAYER, 30, 60) {
+Tunnelman::Tunnelman(StudentWorld &game)
+    : Entity(TID_PLAYER, 30, 60), m_game(&game) {
   this->setHitPoints(10);
 }
 
