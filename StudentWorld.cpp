@@ -33,10 +33,11 @@ void StudentWorld::populateField() {
         this->field[col][row] = std::move(new Earth(col, row));
       } else if (((col < 30) || (col > 33)) && (row < 60)) {
         this->field[col][row] = std::move(new Earth(col, row));
-      } else {
-        this->field[col][row] = std::move(new Earth(col, row));
-        this->field[col][row]->setVisible(false);
-      } // i think this is the bug
+      }
+      // else {
+      //   this->field[col][row] = std::move(new Earth(col, row));
+      //   this->field[col][row]->setVisible(false);
+      // } // i think this is the bug
     }
   }
 }
