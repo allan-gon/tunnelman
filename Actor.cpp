@@ -64,10 +64,7 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_LEFT:
       if (this->getDirection() == left) { // if already facing in that direction
         if (this->getX() != 0) {          // if not on edge
-          if (this->getWorld()->dirtExists(
-                  this->getX() - 1, this->getY())) { // if there's dirt there
-            this->getWorld()->digDirtLR(this->getX() - 1, this->getY());
-          }
+          this->getWorld()->digDirtLR(this->getX() - 1, this->getY());
           this->moveTo(this->getX() - 1, this->getY());
         }
       } else {
@@ -77,10 +74,7 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_RIGHT:
       if (this->getDirection() == right) {
         if (this->getX() != 60) {
-          if (this->getWorld()->dirtExists(this->getX() + 4,
-                                           this->getY())) { // + 1
-            this->getWorld()->digDirtLR(this->getX() + 4, this->getY());
-          }
+          this->getWorld()->digDirtLR(this->getX() + 4, this->getY());
           this->moveTo(this->getX() + 1, this->getY());
         }
       } else {
@@ -90,9 +84,7 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_DOWN:
       if (this->getDirection() == down) {
         if (this->getY() != 0) {
-          if (this->getWorld()->dirtExists(this->getX(), this->getY() - 1)) {
-            this->getWorld()->digDirtUD(this->getX(), this->getY() - 1);
-          }
+          this->getWorld()->digDirtUD(this->getX(), this->getY() - 1);
           this->moveTo(this->getX(), this->getY() - 1);
         }
       } else {
@@ -102,10 +94,8 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_UP:
       if (this->getDirection() == up) {
         if (this->getY() != 60) {
-          if (this->getWorld()->dirtExists(this->getX(), this->getY() + 4)) { // + 1
-            if (this->getY() < 60) { // padding since tunnel man takes a 4x4
-              this->getWorld()->digDirtUD(this->getX(), this->getY() + 4);
-            }
+          if (this->getY() < 60) { // padding since tunnel man takes a 4x4
+            this->getWorld()->digDirtUD(this->getX(), this->getY() + 4);
           }
           this->moveTo(this->getX(), this->getY() + 1);
         }

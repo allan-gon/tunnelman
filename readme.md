@@ -59,7 +59,7 @@ Tunnelman(StudentWorld& game);
                     - change the visibility
                 - move to that location
         - otherwise simply look that way
-- **IMPORTANT**: if there is earth infront of you
+- **IMPORTANT**: if digging but tunnel x, y dosen't share row/col with earth it wont dig and if not all 4 are populated breaks because calls change visibility on nullptr
 
 ## StudentWorld
 - **TODO**

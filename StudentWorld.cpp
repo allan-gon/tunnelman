@@ -6,10 +6,6 @@
 #include <vector>
 using namespace std;
 
-// field dimenstions
-const int ROWS = 60;
-const int COLS = 64;
-
 // max number of spawnanble consumables on a single level
 const unsigned int MAX_BOULDERS = 9;
 const unsigned int MAX_GOLD_NUGGETS = 2;
@@ -34,10 +30,6 @@ void StudentWorld::populateField() {
       } else if (((col < 30) || (col > 33)) && (row < 60)) {
         this->field[col][row] = std::move(new Earth(col, row));
       }
-      // else {
-      //   this->field[col][row] = std::move(new Earth(col, row));
-      //   this->field[col][row]->setVisible(false);
-      // } // i think this is the bug
     }
   }
 }
@@ -119,8 +111,6 @@ int StudentWorld::init() {
   //  // int num_nuggs = max((5 - this->getLevel()) / 2, MAX_GOLD_NUGGETS);
   //  // int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
 
-  bool visible; // variable used to assign an Earth block's visibility based off
-                // location
   this->populateField();
   // TODO: initialize other NEs
   return GWSTATUS_CONTINUE_GAME;
@@ -141,8 +131,8 @@ void StudentWorld::cleanUp() {
   // and also fixes dangling pointer
 
   // frees memory from Earth object
-  for (int row = 0; row < ROWS; row++) {
-    for (int col = 0; col < COLS; col++) {
+  for (int row = 0; row < VIEW_HEIGHT; row++) {
+    for (int col = 0; col < VIEW_WIDTH; col++) {
       if (this->field[col][row] != nullptr) {
         delete this->field[col][row];
         this->field[col][row] = nullptr;
@@ -164,17 +154,16 @@ bool StudentWorld::dirtExists(int x, int y) {
 
 void StudentWorld::digDirtLR(int x, int y) {
   for (int i = 0; i < 4; i++) {
-    if ((y + i) < 60) { // checks if the position is not in the top 4 rows
-      if (field[x][y + i]->isVisible() ==
-          true) { // only detsVisible to false if currently visible
-        field[x][y + i]->setVisible(false);
-      }
+    if (this->dirtExists(x, y + i)) { // ensure there's dirt there
+      field[x][y + i]->setVisible(false);
     }
   }
 }
 
 void StudentWorld::digDirtUD(int x, int y) {
   for (int i = 0; i < 4; i++) {
-    field[x + i][y]->setVisible(false);
+    if (this->dirtExists(x + i, y)) { // ensure dirt is there
+      field[x + i][y]->setVisible(false);
+    }
   }
 }
