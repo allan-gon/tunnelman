@@ -59,12 +59,12 @@ public:
   // get studentWorld pointer
   StudentWorld *getWorld();
   // setters & getters
-  void setWaterUnits(int waterUnits);   //
-  int getWaterUnits();                  //
-  void setSonarCharge(int sonarCharge); //
-  int getSonarCharge();                 //
-  void setGold(int gold);               //
-  int getGold();                        //
+  void setWaterUnits(int waterUnits);
+  int getWaterUnits();
+  void setSonarCharge(int sonarCharge);
+  int getSonarCharge();
+  void setGold(int gold);
+  int getGold();
 
   virtual void doSomething();
   virtual ~Tunnelman();

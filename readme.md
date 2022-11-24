@@ -55,11 +55,10 @@ Tunnelman(StudentWorld& game);
     - if the player is alive and they entered a key
         - if already facing that direction
             - if not on an edge
-                - if there is dirt in the direction you'd like to move
-                    - change the visibility
+                - try and dig
                 - move to that location
         - otherwise simply look that way
-- **IMPORTANT**: if digging but tunnel x, y dosen't share row/col with earth it wont dig and if not all 4 are populated breaks because calls change visibility on nullptr
+- **IMPORTANT**: digging involves digging 4 blocks. If digging up or right I am checking 4 blocks to my side since TM is 4x4 but coords are always bottom left. Dig checks validity of the action
 
 ## StudentWorld
 - **TODO**
@@ -113,3 +112,56 @@ f"Lvl: {self.level} Lives {self.lives} Hlth: {self.health}% Wtr: {self.water} Gl
 non-entitys will be spawned so simply generating a random x, y and checking against all non-entitys
 is no good. Need to efficienlty map the space and randomly select a valid node, taking on that nodes
 x and y
+
+```cpp
+  //  // used in naive approach to create valid NE location
+  //  std::random_device rd;                            // random num from
+  //  hardware std::mt19937 gen(rd());                           // seed the
+  //  generator std::uniform_int_distribution<> col_dist(0, 60);  // set range,
+  //  inclusive std::uniform_int_distribution<> row_dist(20, 56); // could be
+  //  improved, only bool distance_cond_met = true; bool randomly_placed =
+  //  false; vector<vector<int>> invalid_locs;
+  //  // place boulders
+  //  int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
+  //  // naive approach so I can at least display them + create logic to clear
+  //  earth for (int i = 0; i < num_boulders; i++) { // for num_boulders
+  //    while (!randomly_placed) {             // until a valid coord is found
+  //      int potential_x, potential_y;        // randomly generate x and y
+  //      potential_x = col_dist(gen);
+  //      potential_y = row_dist(gen);
+  //      std::cout << potential_x << endl;
+  //      // changed to 29 - 3. i think this will keep it from clipping the
+  //      shaft if ((potential_x < (29 - 3)) || (potential_x > 34)) { // not at
+  //      shaft
+  //        // i think this cond ius gargabe. dist produces that so...
+  //        if ((potential_y > 19) &&
+  //            (potential_y < 57)) { // row [20, 56] like spec
+  //          vector<int> temp = {potential_x, potential_y};
+  //          if (find(invalid_locs.begin(), invalid_locs.end(), temp) ==
+  //              invalid_locs.end()) { // location is not taken
+  //            for (auto boulder :
+  //                 this->boulders) { // check distacne against each NE
+  //              if (!(validSpawn(boulder->getX(), boulder->getY(),
+  //              potential_x,
+  //                               potential_y))) { // if violate distnace rule
+  //                distance_cond_met = false;
+  //                break;
+  //              }
+  //            }
+  //            if (distance_cond_met) {
+  //              this->boulders.push_back(std::move(
+  //                  new Boulder(true, potential_x, potential_y))); // save it
+  //              randomly_placed = true;                            // break
+  //              loop
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //    distance_cond_met = true;
+  //    randomly_placed = false; // reset for next iter
+  //  }
+  //
+  //  // int num_nuggs = max((5 - this->getLevel()) / 2, MAX_GOLD_NUGGETS);
+  //  // int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
+```
