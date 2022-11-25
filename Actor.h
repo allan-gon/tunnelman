@@ -46,6 +46,9 @@ public:
     Entity(int imageID, int startX, int startY, Direction dir,
          unsigned int depth = 0, bool visible = true);
     
+    void setWorld(StudentWorld& game);              // 1)
+    StudentWorld* getWorld();                       // 1)
+    
     virtual void setHitPoints(int hitPoints);
     int getHitPoints();
     virtual void doSomething() = 0;
@@ -54,6 +57,8 @@ public:
 
 private:
     int m_hitPoints;
+    // moved the StudentWorld pointer to the Entity class to let Protesters also use
+    StudentWorld* m_game;                           // 1)
 };
 
 class Tunnelman : public Entity {
@@ -63,7 +68,7 @@ public:
             Direction dir = right);
     
     // get studentWorld pointer
-    StudentWorld* getWorld();
+    // StudentWorld* getWorld();                    1)
     // setters & getters
     void setWaterUnits(int waterUnits);                 //
     int getWaterUnits();                                //
@@ -80,7 +85,20 @@ private:
     int m_sonarCharge = 1;
     int m_gold = 0;
     // added StudentWorld pointer
-    StudentWorld* m_game;
+    // StudentWorld* m_game;                        1)
+};
+
+class Protester : public Entity {
+public:
+    Protester(StudentWorld& game, int imageID, int startX = 60, int startY = 60, Direction dir = left);
+    
+    void setLeaveOilField(bool leave);
+    bool getLeaveOilField();
+    
+    virtual void doSomething() = 0;
+    virtual ~Protester();
+private:
+    bool leave_the_oil_field = false;
 };
 
 #endif // ACTOR_H_

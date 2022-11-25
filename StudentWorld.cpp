@@ -166,17 +166,29 @@ bool StudentWorld::dirtExists(int x, int y) {
 }
 
 void StudentWorld::digDirtLR(int x, int y) {
+    bool dug = false;
     for (int i = 0; i < 4; i++) {
         if ((y + i) < 60) {     // checks if the position is not in the top 4 rows
-            if (field[x][y + i]->isVisible() == true) {     // only detsVisible to false if currently visible
+            if (field[x][y + i]->isVisible() == true) {     // only setsVisible to false if currently visible
                 field[x][y + i]->setVisible(false);
+                dug = true;
             }
         }
+    }
+    if (dug == true) {
+        playSound(SOUND_DIG);
     }
 }
 
 void StudentWorld::digDirtUD(int x, int y) {
+    bool dug = false;
     for (int i = 0; i < 4; i++) {
-        field[x + i][y]->setVisible(false);
+        if (field[x + i][y]->isVisible() == true) {
+            field[x + i][y]->setVisible(false);
+            dug = true;
+        }
+    }
+    if (dug == true) {
+        playSound(SOUND_DIG);
     }
 }

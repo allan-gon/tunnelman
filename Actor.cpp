@@ -40,16 +40,21 @@ int Entity::getHitPoints() { return this->m_hitPoints; }
 
 void Entity::doSomething() { return; }
 
+StudentWorld* Entity::getWorld() { return m_game; }                 // 1)
+
+void Entity::setWorld(StudentWorld& game) {this->m_game = &game; }   // 1)
+
 Entity::~Entity() {}
 
 // added the StudentWorld address & initializes the member variable
 Tunnelman::Tunnelman(StudentWorld& game, int imageID, int startX, int startY, Direction dir)
-    : Entity(imageID, startX, startY, dir) , m_game(&game) {
+: Entity(imageID, startX, startY, dir) { // , m_game(&game) {
     this->setHitPoints(10);
+    this->setWorld(game);
 }
 
 // added to get access to getKey()
-StudentWorld* Tunnelman::getWorld() { return m_game; }
+// StudentWorld* Tunnelman::getWorld() { return m_game; }           1)
 
 void Tunnelman::setWaterUnits(int waterUnits) { this->m_waterUnits = waterUnits; }
 
