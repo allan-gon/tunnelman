@@ -53,7 +53,6 @@ int StudentWorld::move() {
   for (auto actor : this->actors) {
     actor->doSomething();
   }
-
   return GWSTATUS_CONTINUE_GAME;
 }
 
