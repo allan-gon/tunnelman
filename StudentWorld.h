@@ -32,6 +32,7 @@ private:
   // container for all actors other than tunnel man and earth
   std::vector<Actor *> actors;
   Tunnelman *player = nullptr;
+    Protester *p1 = nullptr;                        // testing regular protester
 };
 
 #endif // STUDENTWORLD_H_

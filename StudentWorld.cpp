@@ -41,6 +41,7 @@ void StudentWorld::populateField() {
 int StudentWorld::init() {
   // initializes tunnelman & provides the studentWorld address
   this->player = std::move(new Tunnelman(*this));
+    this->p1 = std::move(new RegularProtester(*this, *player));            // testing regular protester
   // place earth in field
   this->populateField();
   // TODO: spawn all other NEs
@@ -49,6 +50,7 @@ int StudentWorld::init() {
 
 int StudentWorld::move() {
   player->doSomething();
+    p1->doSomething();                                             // testing regular protester
 
   for (auto actor : this->actors) {
     actor->doSomething();
@@ -84,19 +86,32 @@ bool StudentWorld::dirtExists(int x, int y) {
 }
 
 void StudentWorld::digDirtLR(int x, int y) {
-
+  bool dug = false;
   for (int i = 0; i < 4; i++) {
     if (this->dirtExists(x, y + i)) { // ensure there's dirt there
-      field[x][y + i]->setVisible(false);
+      if (field[x][y + i]->isVisible()) {
+        field[x][y + i]->setVisible(false);
+        dug = true;
+      }
     }
+  }
+  if (dug) {
+    playSound(SOUND_DIG);
   }
 }
 
 void StudentWorld::digDirtUD(int x, int y) {
+  bool dug = false;
   for (int i = 0; i < 4; i++) {
     if (this->dirtExists(x + i, y)) { // ensure dirt is there
-      field[x + i][y]->setVisible(false);
+      if (field[x + i][y]->isVisible()) {
+        field[x + i][y]->setVisible(false);
+        dug = true;
+      }
     }
+  }
+  if (dug) {
+    playSound(SOUND_DIG);
   }
 }
 
