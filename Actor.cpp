@@ -14,11 +14,45 @@ void Actor::setAlive(bool alive) { this->is_alive = alive; }
 Earth::Earth(int startX, int startY)
     : Actor(true, TID_EARTH, startX, startY, right, 3, 0.25) {}
 
-// Boulder::Boulder(bool visible, int startX, int startY, int imageID,
-//                  Direction dir, unsigned int depth)
-//     : Actor(visible, imageID, startX, startY, dir, depth) {}
+Boulder::Boulder(int startX, int startY, StudentWorld &world)
+    : Actor(true, TID_BOULDER, startX, startY, down, 1), m_world(&world) {}
 
-// void Boulder::doSomething() {};
+bool Boulder::getState() { return this->m_state; }
+
+void Boulder::setState(State state) { this->m_state = state; }
+
+StudentWorld *Boulder::getWorld() { return this->m_world; }
+
+void Boulder::doSomething() {
+  // TODO: missing, boulder does damage to entities
+  if (this->getAlive()) {             // if alive
+    if (this->getState() == stable) { // if stable
+      if (!(this->getWorld()->dirtBelow(
+              this->getX(), this->getY()))) { // if no dirt in 4 squares below
+        this->setState(waiting);              // now waiting
+      }
+
+    } else if (this->getState() == waiting) { // if waiting
+      if (this->waiting_ticks_elapsed > 30) { // if 30 ticks have elapsed
+        this->setState(falling);              // now falling
+        this->getWorld()->playSound(SOUND_FALLING_ROCK);
+      } else { // if <= 30 ticks
+        this->waiting_ticks_elapsed++;
+      }
+    } else if (this->getState() == falling) { // if falling
+      // if not at the bottom and no dirt or earth directly below
+      if ((this->getY() > 0) &&
+          !this->getWorld()->boulderExistsUnder(this->getX(), this->getY()) &&
+          !this->getWorld()->dirtBelow(this->getX(), this->getY())) {
+        this->moveTo(this->getX(), this->getY() - 1); // move down 1 row
+      } else {
+        this->setState(dead);
+      }
+    }
+  } else if (this->getState() == dead) {
+    this->setVisible(false);
+  }
+}
 
 Entity::Entity(int imageID, int startX, int startY)
     : Actor(true, imageID, startX, startY, right, 0) {}

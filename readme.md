@@ -165,3 +165,7 @@ x and y
   //  // int num_nuggs = max((5 - this->getLevel()) / 2, MAX_GOLD_NUGGETS);
   //  // int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
 ```
+
+# protestor class
+- leave oil field state
+- use queue to find best way out of field

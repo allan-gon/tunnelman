@@ -26,17 +26,21 @@ public:
   virtual void doSomething() { return; };
 };
 
-// class Boulder : public Actor {
-// public:
-//   Boulder(bool visible, int startX, int startY, int imageID = TID_BOULDER,
-//           Direction dir = down, unsigned int depth = 1);
-//   virtual void doSomething();
+class Boulder : public Actor {
+public:
+  enum State { stable, waiting, falling, dead };
 
-// private:
-//   bool is_stable = true;
-// };
+  Boulder(int startX, int startY, StudentWorld &world);
+  virtual void doSomething();
+  bool getState();
+  void setState(State state);
+  StudentWorld *getWorld();
 
-// start of refactor
+private:
+  StudentWorld *m_world;
+  State m_state = stable;
+  int waiting_ticks_elapsed = 0;
+};
 
 class Entity : public Actor {
 public:

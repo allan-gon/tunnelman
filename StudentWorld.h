@@ -12,6 +12,7 @@ public:
   StudentWorld(std::string assetDir) : GameWorld(assetDir) {}
 
   void populateField();
+  void placeBoulders();
 
   virtual int init();
 
@@ -19,10 +20,15 @@ public:
 
   virtual void cleanUp();
 
-  // getting earth field info
-  bool dirtExists(int x, int y);
+  // helper functions for tunnelman
+  bool dirtExistsVisible(int x, int y);
   void digDirtLR(int x, int y);
   void digDirtUD(int x, int y);
+
+  // helper functions for boulder
+  bool dirtBelow(int x, int y);
+  bool boulderExistsUnder(int x, int y);
+  void clear4by4(int x, int y);
 
   ~StudentWorld();
 
