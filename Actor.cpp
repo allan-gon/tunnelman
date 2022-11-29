@@ -17,7 +17,7 @@ Earth::Earth(int startX, int startY)
 Boulder::Boulder(int startX, int startY, StudentWorld &world)
     : Actor(true, TID_BOULDER, startX, startY, down, 1), m_world(&world) {}
 
-bool Boulder::getState() { return this->m_state; }
+// State Boulder::getState() { return this->m_state; }
 
 void Boulder::setState(State state) { this->m_state = state; }
 
@@ -33,9 +33,10 @@ void Boulder::doSomething() {
       }
 
     } else if (this->getState() == waiting) { // if waiting
-      if (this->waiting_ticks_elapsed > 30) { // if 30 ticks have elapsed
-        this->setState(falling);              // now falling
+      if (this->waiting_ticks_elapsed > 29) { // if 30 ticks have elapsed
         this->getWorld()->playSound(SOUND_FALLING_ROCK);
+        this->setState(falling); // now falling
+        std::cout << this->getState() << std::endl;
       } else { // if <= 30 ticks
         this->waiting_ticks_elapsed++;
       }
@@ -44,13 +45,14 @@ void Boulder::doSomething() {
       if ((this->getY() > 0) &&
           !this->getWorld()->boulderExistsUnder(this->getX(), this->getY()) &&
           !this->getWorld()->dirtBelow(this->getX(), this->getY())) {
+        this->getWorld()->boulderAnnoyActors(this->getX(), this->getY());
         this->moveTo(this->getX(), this->getY() - 1); // move down 1 row
       } else {
         this->setState(dead);
       }
+    } else if (this->getState() == dead) {
+      this->setVisible(false);
     }
-  } else if (this->getState() == dead) {
-    this->setVisible(false);
   }
 }
 
@@ -141,6 +143,11 @@ void Tunnelman::doSomething() {
       break;
     }
   }
+}
+
+void Tunnelman::annoy(){
+  // possibly should increase annoyance
+  this->setHitPoints(this->getHitPoints() - 100);
 }
 
 Tunnelman::~Tunnelman(){};

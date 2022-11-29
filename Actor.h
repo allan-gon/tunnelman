@@ -12,6 +12,7 @@ public:
         unsigned int depth, double size = 1.0);
 
   virtual void doSomething() = 0;
+  virtual void annoy() = 0;
   bool getAlive();
   void setAlive(bool alive);
 
@@ -24,6 +25,7 @@ public:
   Earth(int startX, int startY);
   // required because parent is pure virtual
   virtual void doSomething() { return; };
+  virtual void annoy() { return; }
 };
 
 class Boulder : public Actor {
@@ -32,7 +34,8 @@ public:
 
   Boulder(int startX, int startY, StudentWorld &world);
   virtual void doSomething();
-  bool getState();
+  virtual void annoy() { return; }
+  State getState() { return this->m_state; }
   void setState(State state);
   StudentWorld *getWorld();
 
@@ -49,6 +52,7 @@ public:
   virtual void setHitPoints(int hitPoints);
   int getHitPoints();
   virtual void doSomething() = 0;
+  virtual void annoy() = 0;
 
   virtual ~Entity();
 
@@ -71,6 +75,7 @@ public:
   int getGold();
 
   virtual void doSomething();
+  virtual void annoy();
   virtual ~Tunnelman();
 
 private:

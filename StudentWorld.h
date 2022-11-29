@@ -29,10 +29,13 @@ public:
   bool dirtBelow(int x, int y);
   bool boulderExistsUnder(int x, int y);
   void clear4by4(int x, int y);
+  void boulderAnnoyActors(int x, int y);
 
   ~StudentWorld();
 
 private:
+  // this value needs to be calcd
+  int num_barrels_left = 1;
   // intialize multi-dim array of Earth ptrs to nullptr
   Earth *field[VIEW_WIDTH][VIEW_HEIGHT] = {};
   // container for all actors other than tunnel man and earth

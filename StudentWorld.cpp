@@ -19,12 +19,17 @@ GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
 }
 
-bool validSpawn(int x1, int y1, int x2, int y2) {
-  // returns whether or not the distance between point 1
-  // and point 2 is > 6. Helper for StudentWorld::init
+bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
   float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
-  return dist > 6;
+  return dist > max_dist;
 }
+
+// bool validSpawn(int x1, int y1, int x2, int y2) {
+//   // returns whether or not the distance between point 1
+//   // and point 2 is > 6. Helper for StudentWorld::init
+//   float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+//   return dist > 6;
+// }
 
 void StudentWorld::clear4by4(int x, int y) {
   // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
@@ -56,6 +61,7 @@ void StudentWorld::placeBoulders() {
 int StudentWorld::init() {
   // initializes tunnelman & provides the studentWorld address
   this->player = std::move(new Tunnelman(*this));
+
   // place earth in field
   this->populateField();
   // place boulders
@@ -65,12 +71,23 @@ int StudentWorld::init() {
 }
 
 int StudentWorld::move() {
+  // TODO: update text
   player->doSomething();
 
   for (auto actor : this->actors) {
     actor->doSomething();
   }
-  return GWSTATUS_CONTINUE_GAME;
+
+  // TODO: check if when 3 lives are exhausted game gracfully kys
+  if (this->player->getAlive()) {  // alive
+    if (!this->num_barrels_left) { // finished level
+      this->playSound(SOUND_FINISHED_LEVEL);
+      return GWSTATUS_FINISHED_LEVEL;
+    }
+    return GWSTATUS_CONTINUE_GAME;
+  } else { // dead
+    return GWSTATUS_PLAYER_DIED;
+  }
 }
 
 void StudentWorld::cleanUp() {
@@ -136,6 +153,13 @@ bool StudentWorld::boulderExistsUnder(int x, int y) {
     }
   }
   return false;
+}
+
+void StudentWorld::boulderAnnoyActors(int x, int y) {
+  if (inRange(this->player->getX(), this->player->getY(), x, y, 3)) {
+    this->player->setAlive(false);
+    return; // Nothing else must be checked since player died
+  }
 }
 
 StudentWorld::~StudentWorld() {}
