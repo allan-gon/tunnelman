@@ -67,6 +67,8 @@ int StudentWorld::init() {
   // place boulders
   this->placeBoulders();
   // TODO: spawn all other NEs
+
+  std::cout << this->actors.size() << std::endl;
   return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -106,10 +108,10 @@ void StudentWorld::cleanUp() {
   }
 
   // free's any memory that was allocated to actors
-  for (int i = this->actors.size(); i >= 0; i--) {
+  for (int i = 0; i < this->actors.size(); i++) {
     delete this->actors[i];
-    this->actors.erase(this->actors.begin() + i - 1);
   }
+  this->actors.clear();
 }
 
 // dirtExistsVisible

@@ -36,8 +36,7 @@ void Boulder::doSomething() {
       if (this->waiting_ticks_elapsed > 29) { // if 30 ticks have elapsed
         this->getWorld()->playSound(SOUND_FALLING_ROCK);
         this->setState(falling); // now falling
-        std::cout << this->getState() << std::endl;
-      } else { // if <= 30 ticks
+      } else {                   // if <= 30 ticks
         this->waiting_ticks_elapsed++;
       }
     } else if (this->getState() == falling) { // if falling
@@ -145,7 +144,7 @@ void Tunnelman::doSomething() {
   }
 }
 
-void Tunnelman::annoy(){
+void Tunnelman::annoy() {
   // possibly should increase annoyance
   this->setHitPoints(this->getHitPoints() - 100);
 }
