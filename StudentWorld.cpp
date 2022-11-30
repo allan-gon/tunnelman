@@ -21,7 +21,7 @@ GameWorld *createStudentWorld(string assetDir) {
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
   float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
-  return dist > max_dist;
+  return dist <= max_dist;
 }
 
 // bool validSpawn(int x1, int y1, int x2, int y2) {
@@ -54,8 +54,8 @@ void StudentWorld::populateField() {
 
 void StudentWorld::placeBoulders() {
   // for now places a single boulder in a fixed location
-  this->actors.push_back(std::move(new Boulder(10, 30, *this)));
-  this->clear4by4(10, 30);
+  this->actors.push_back(std::move(new Boulder(10, 50, *this)));
+  this->clear4by4(10, 50);
 }
 
 int StudentWorld::init() {
@@ -67,8 +67,6 @@ int StudentWorld::init() {
   // place boulders
   this->placeBoulders();
   // TODO: spawn all other NEs
-
-  std::cout << this->actors.size() << std::endl;
   return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -88,11 +86,13 @@ int StudentWorld::move() {
     }
     return GWSTATUS_CONTINUE_GAME;
   } else { // dead
+    this->decLives();
     return GWSTATUS_PLAYER_DIED;
   }
 }
 
 void StudentWorld::cleanUp() {
+  std::cout << this->getLives() << std::endl;
   // frees memory from tunnelman + fix dangling pointer
   delete this->player;
   this->player = nullptr;
@@ -109,9 +109,9 @@ void StudentWorld::cleanUp() {
 
   // free's any memory that was allocated to actors
   for (int i = 0; i < this->actors.size(); i++) {
-    delete this->actors[i];
+    delete this->actors[i]; // de-alloc
   }
-  this->actors.clear();
+  this->actors.clear(); // empty
 }
 
 // dirtExistsVisible
@@ -147,6 +147,7 @@ bool StudentWorld::dirtBelow(int x, int y) {
 }
 
 bool StudentWorld::boulderExistsUnder(int x, int y) {
+  // TODO: THIS GUYS IS BROKEN
   for (auto actor : this->actors) {
     if (actor->getID() == TID_BOULDER) {
       if ((actor->getX() == x) && (actor->getY() == (y - 4))) {
