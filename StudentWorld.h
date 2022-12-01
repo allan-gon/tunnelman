@@ -27,7 +27,7 @@ public:
 
   // helper functions for boulder
   bool dirtBelow(int x, int y);
-  bool boulderExistsUnder(int x, int y);
+  bool boulderExists(Actor* object);
   void clear4by4(int x, int y);
   void boulderAnnoyActors(int x, int y);
 

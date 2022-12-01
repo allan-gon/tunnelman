@@ -41,8 +41,7 @@ void Boulder::doSomething() {
       }
     } else if (this->getState() == falling) { // if falling
       // if not at the bottom and no dirt or earth directly below
-      if ((this->getY() > 0) &&
-          !this->getWorld()->boulderExistsUnder(this->getX(), this->getY()) &&
+      if ((this->getY() > 0) && !this->getWorld()->boulderExists(this) &&
           !this->getWorld()->dirtBelow(this->getX(), this->getY())) {
         this->getWorld()->boulderAnnoyActors(this->getX(), this->getY());
         this->moveTo(this->getX(), this->getY() - 1); // move down 1 row
@@ -92,6 +91,7 @@ void Tunnelman::setGold(int gold) { this->m_gold = gold; }
 int Tunnelman::getGold() { return this->m_gold; }
 
 void Tunnelman::doSomething() {
+  // TODO: don't move if boulder
   int key;
   // if player is alive and a key was pressed
   if (this->getAlive() && this->getWorld()->getKey(key)) {
@@ -100,7 +100,9 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == left) { // if already facing in that direction
         if (this->getX() != 0) {          // if not on edge
           this->getWorld()->digDirtLR(this->getX() - 1, this->getY());
-          this->moveTo(this->getX() - 1, this->getY());
+          if (!this->getWorld()->boulderExists(this)) {
+            this->moveTo(this->getX() - 1, this->getY());
+          }
         }
       } else {
         this->setDirection(left);
@@ -110,7 +112,9 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == right) {
         if (this->getX() != 60) {
           this->getWorld()->digDirtLR(this->getX() + 4, this->getY());
-          this->moveTo(this->getX() + 1, this->getY());
+          if (!this->getWorld()->boulderExists(this)) {
+            this->moveTo(this->getX() + 1, this->getY());
+          }
         }
       } else {
         this->setDirection(right);
@@ -120,7 +124,9 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == down) {
         if (this->getY() != 0) {
           this->getWorld()->digDirtUD(this->getX(), this->getY() - 1);
-          this->moveTo(this->getX(), this->getY() - 1);
+          if (!this->getWorld()->boulderExists(this)) {
+            this->moveTo(this->getX(), this->getY() - 1);
+          }
         }
       } else {
         this->setDirection(down);
@@ -132,7 +138,9 @@ void Tunnelman::doSomething() {
           if (this->getY() < 60) { // padding since tunnel man takes a 4x4
             this->getWorld()->digDirtUD(this->getX(), this->getY() + 4);
           }
-          this->moveTo(this->getX(), this->getY() + 1);
+          if (!this->getWorld()->boulderExists(this)) {
+            this->moveTo(this->getX(), this->getY() + 1);
+          }
         }
       } else {
         this->setDirection(up);

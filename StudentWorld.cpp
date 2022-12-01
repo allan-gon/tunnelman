@@ -146,11 +146,26 @@ bool StudentWorld::dirtBelow(int x, int y) {
   return false;
 }
 
-bool StudentWorld::boulderExistsUnder(int x, int y) {
+bool StudentWorld::boulderExists(Actor *object) {
+  // use unordered map to reduce ifs
+  // key = directions: value = [x, y, x_range, y_range]
+
+  int x_modifier = 0, y_modifier = 0;
+  if (object->getDirection() == 1) { // up
+    y_modifier = y_modifier + 4;
+  } else if (object->getDirection() == 2) { // down
+    y_modifier = y_modifier - 4;
+  } else if (object->getDirection() == 3) { // left
+    x_modifier = x_modifier - 4;
+  } else { // right
+    x_modifier = x_modifier + 4;
+  }
+
   // TODO: THIS GUYS IS BROKEN
   for (auto actor : this->actors) {
     if (actor->getID() == TID_BOULDER) {
-      if ((actor->getX() == x) && (actor->getY() == (y - 4))) {
+      if ((actor->getX() == object->getX() + x_modifier) &&
+          (actor->getY() == object->getY() + y_modifier)) {
         return true;
       }
     }
