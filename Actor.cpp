@@ -138,7 +138,7 @@ void Tunnelman::doSomething() {
           if (this->getY() < 60) { // padding since tunnel man takes a 4x4
             this->getWorld()->digDirtUD(this->getX(), this->getY() + 4);
           }
-          if (!this->getWorld()->boulderExists(this)) {
+          if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX(), this->getY() + 1);
           }
         }
