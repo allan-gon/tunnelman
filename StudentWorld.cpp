@@ -177,7 +177,7 @@ bool StudentWorld::boulderExists(Actor *object) {
 bool StudentWorld::boulderObstructs(Actor *object) {
   // x_mod, y_mod, left_end, right_end
   // accessed dir direction - 1
-  int dir_modifier[4][2] = {{0, 4}, {0, -4}, {-4, 0}, {4, 0}};
+  int dir_modifier[4] = {4, -4, -4, 4};
   bool is_vertical = false;
   if ((object->getDirection() == 1) || (object->getDirection() == 2)) {
     is_vertical = true;
@@ -188,10 +188,8 @@ bool StudentWorld::boulderObstructs(Actor *object) {
       if (is_vertical) {
         for (int i = -3; i < 4; i++) {
           // something in the condiotin is wrong
-          if ((object->getX() + dir_modifier[object->getDirection() - 1][0] +
-                   i ==
-               actor->getX()) ||
-              (object->getY() + dir_modifier[object->getDirection() - 1][1] ==
+          if ((object->getX() + i == actor->getX()) &&
+              (object->getY() + dir_modifier[object->getDirection() - 1] ==
                actor->getY())) {
             return true;
           }

@@ -124,7 +124,7 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == down) {
         if (this->getY() != 0) {
           this->getWorld()->digDirtUD(this->getX(), this->getY() - 1);
-          if (!this->getWorld()->boulderExists(this)) { // was boulderExists
+          if (!this->getWorld()->boulderObstructs(this)) { // was boulderExists
             this->moveTo(this->getX(), this->getY() - 1);
           }
         }
