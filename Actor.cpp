@@ -47,6 +47,7 @@ void Boulder::doSomething() {
         this->moveTo(this->getX(), this->getY() - 1); // move down 1 row
       } else {
         this->setState(dead);
+        this->setAlive(false);
       }
     } else if (this->getState() == dead) {
       this->setVisible(false);

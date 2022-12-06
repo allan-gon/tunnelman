@@ -75,8 +75,14 @@ int StudentWorld::move() {
   // TODO: update text
   player->doSomething();
 
-  for (auto actor : this->actors) {
-    actor->doSomething();
+  for (auto it = this->actors.begin(); it != this->actors.end();) {
+    if (!(*it)->getAlive()) {
+      delete *it;
+      it = this->actors.erase(it);
+    } else {
+      (*it)->doSomething();
+      it++;
+    }
   }
 
   // TODO: check if when 3 lives are exhausted game gracfully kys
