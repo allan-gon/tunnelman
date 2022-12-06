@@ -194,6 +194,13 @@ bool StudentWorld::boulderObstructs(Actor *object) {
             return true;
           }
         }
+      } else {
+        for (int i = -3; i < 4; i++) {
+          if ((object->getX() + dir_modifier[object->getDirection() - 1] ==
+               actor->getX()) &&
+              (object->getY() + i == actor->getY()))
+            return true;
+        }
       }
     }
   }

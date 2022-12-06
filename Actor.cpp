@@ -100,7 +100,7 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == left) { // if already facing in that direction
         if (this->getX() != 0) {          // if not on edge
           this->getWorld()->digDirtLR(this->getX() - 1, this->getY());
-          if (!this->getWorld()->boulderExists(this)) {
+          if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX() - 1, this->getY());
           }
         }
@@ -112,7 +112,7 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == right) {
         if (this->getX() != 60) {
           this->getWorld()->digDirtLR(this->getX() + 4, this->getY());
-          if (!this->getWorld()->boulderExists(this)) {
+          if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX() + 1, this->getY());
           }
         }
