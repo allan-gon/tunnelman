@@ -1,6 +1,7 @@
 #include "StudentWorld.h"
 #include "Actor.h"
 #include <algorithm> // this guy's needed because find cries without
+#include <map>
 #include <random>
 #include <string>
 #include <vector>
@@ -170,6 +171,39 @@ bool StudentWorld::boulderExists(Actor *object) {
       }
     }
   }
+  return false;
+}
+
+bool StudentWorld::boulderObstructs(Actor *object) {
+  // x_mod, y_mod, left_end, right_end
+  // accessed dir direction - 1
+  int dir_modifier[4][2] = {{0, 4}, {0, -4}, {-4, 0}, {4, 0}};
+  bool is_vertical = false;
+  if ((object->getDirection() == 1) || (object->getDirection() == 2)) {
+    is_vertical = true;
+  }
+
+  for (auto actor : this->actors) {
+    if (actor->getID() == TID_BOULDER) {
+      if (is_vertical) {
+        for (int i = -3; i < 4; i++) {
+          // something in the condiotin is wrong
+          if ((object->getX() + dir_modifier[object->getDirection() - 1][0] +
+                   i ==
+               actor->getX()) ||
+              (object->getY() + dir_modifier[object->getDirection() - 1][1] ==
+               actor->getY())) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+
+  // how do I know that a boulder is obstructing?
+  // if going down, is it directly below me (ae. y - 4)
+  // does any part of my body collide with it?
+  // when moving vertically, this means checking +/- 3 horizontally
   return false;
 }
 

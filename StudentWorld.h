@@ -30,6 +30,7 @@ public:
   bool boulderExists(Actor* object);
   void clear4by4(int x, int y);
   void boulderAnnoyActors(int x, int y);
+  bool boulderObstructs(Actor* object);
 
   ~StudentWorld();
 
