@@ -175,7 +175,7 @@ bool StudentWorld::boulderExists(Actor *object) {
 }
 
 bool StudentWorld::boulderObstructs(Actor *object) {
-  // x_mod, y_mod, left_end, right_end
+  // check is boulder is within +/- 3 of specific actor
   // accessed dir direction - 1
   int dir_modifier[4] = {4, -4, -4, 4};
   bool is_vertical = false;
@@ -187,7 +187,6 @@ bool StudentWorld::boulderObstructs(Actor *object) {
     if (actor->getID() == TID_BOULDER) {
       if (is_vertical) {
         for (int i = -3; i < 4; i++) {
-          // something in the condiotin is wrong
           if ((object->getX() + i == actor->getX()) &&
               (object->getY() + dir_modifier[object->getDirection() - 1] ==
                actor->getY())) {
@@ -204,11 +203,6 @@ bool StudentWorld::boulderObstructs(Actor *object) {
       }
     }
   }
-
-  // how do I know that a boulder is obstructing?
-  // if going down, is it directly below me (ae. y - 4)
-  // does any part of my body collide with it?
-  // when moving vertically, this means checking +/- 3 horizontally
   return false;
 }
 
