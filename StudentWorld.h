@@ -20,10 +20,13 @@ public:
   virtual void cleanUp();
 
   // getting earth field info
-  bool dirtExists(int x, int y);
+  bool dirtExistsVisible(int x, int y);
   void digDirtLR(int x, int y);
   void digDirtUD(int x, int y);
-
+  bool dirtVisible(int x, int y);
+    bool positionClearLR(int x, int y);
+    bool positionClearUD(int x, int y);
+    
   ~StudentWorld();
 
 private:

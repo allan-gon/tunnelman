@@ -81,18 +81,16 @@ void StudentWorld::cleanUp() {
 }
 
 // dirtExists
-bool StudentWorld::dirtExists(int x, int y) {
-  return this->field[x][y] != nullptr;
+bool StudentWorld::dirtExistsVisible(int x, int y) {
+    return (this->field[x][y] != nullptr && this->field[x][y]->isVisible());
 }
 
 void StudentWorld::digDirtLR(int x, int y) {
   bool dug = false;
   for (int i = 0; i < 4; i++) {
-    if (this->dirtExists(x, y + i)) { // ensure there's dirt there
-      if (field[x][y + i]->isVisible()) {
+    if (this->dirtExistsVisible(x, y + i)) { // ensure there's dirt there
         field[x][y + i]->setVisible(false);
         dug = true;
-      }
     }
   }
   if (dug) {
@@ -103,16 +101,42 @@ void StudentWorld::digDirtLR(int x, int y) {
 void StudentWorld::digDirtUD(int x, int y) {
   bool dug = false;
   for (int i = 0; i < 4; i++) {
-    if (this->dirtExists(x + i, y)) { // ensure dirt is there
-      if (field[x + i][y]->isVisible()) {
+    if (this->dirtExistsVisible(x + i, y)) { // ensure dirt is there
         field[x + i][y]->setVisible(false);
         dug = true;
-      }
     }
   }
   if (dug) {
     playSound(SOUND_DIG);
   }
+}
+
+bool StudentWorld::dirtVisible(int x, int y) {
+    if (field[x][y] != nullptr) {
+        if (field[x][y]->isVisible()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool StudentWorld::positionClearLR(int x, int y) {
+    // do for loop to check the entire position to prevent walking into dirt
+    for (int i = 0; i < 4; i++) {
+        if ( x < 0 || x > 63 || y > 60 || y < 0 || (field[x][y + i] != nullptr && field[x][y + i]->isVisible())) {   // isVisible?
+            return false;
+        }
+    }
+    return true;
+}
+
+bool StudentWorld::positionClearUD(int x, int y) {
+    for (int i = 0; i < 4; i++) {
+        if ( y > 60 || y < 0 || x > 60 || x < 0 || (field[x + i][y] != nullptr && field[x + i][y]->isVisible())) {
+            return false;
+        }
+    }
+    return true;
 }
 
 StudentWorld::~StudentWorld() {}

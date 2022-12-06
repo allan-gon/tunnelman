@@ -2,6 +2,7 @@
 #define ACTOR_H_
 
 #include "GraphObject.h"
+#include <queue>
 
 // forward declaration to use studentWorld pointer
 class StudentWorld;
@@ -22,10 +23,15 @@ private:
 class Earth : public Actor {
 public:
   Earth(int startX, int startY);
+    
   // required because parent is pure virtual
   virtual void doSomething() { return; };
-// private:
-    // bool m_marked = false;              // added for the queue??
+    
+  // bool getDiscovered();
+  // void setDiscovered(bool discovered);
+    
+private:
+  bool m_discovered = false;              // added for the queue??
 };
 
 // class Boulder : public Actor {
@@ -81,6 +87,12 @@ private:
 
 class Protester : public Entity {
 public:
+    
+    struct coord {        // for queue
+        int x;
+        int y;
+    };
+    
     Protester(int imageID, StudentWorld &game, Tunnelman &TM);
     
     void setLeaveStatus(bool leaveOilField);
@@ -88,31 +100,55 @@ public:
     
     void setWaitTicks(int numWait);
     int getWaitTicks();
+    
     void setRestState(bool restState);
     bool getRestState();
+    
     void setRestTickCount(int numRestTick);
     int getRestTickCount();
-    void decRestTickCount();                        // decrements the resting tick count
+    void decRestTickCount();
+    
     void setMovesCurrDir(int numCurrDir);
     int getMovesCurrDir();
+    void initMovesCurrDir();
+    
     void setTM(Tunnelman &TM);
     Tunnelman *getTM();
+    
     void setLastShouted(int numLastShouted);
     int getLastShouted();
     
-    double getUnitsFromTM();                           // distance between Protester & TM
+    void setLastPerpendicular(int numLastPerpendicular);
+    int getLastPerpendicular();
+    
+    double getUnitsFromTM();
     bool getFacingTM();
+    bool lineOfSightTM();
+    bool turnsTowardsTM();
+    bool chooseDirection(Direction dir);
+    enum Direction checkTrapped(Direction dir);
+    
+    void protesterYells();
+    bool checkPath(int start, int end, int same, bool changeX);
     
     virtual void doSomething() = 0;
     virtual ~Protester();
+    
 private:
     bool m_leaveOilField = false;
     int m_ticksToWait = 5;  // max(0, 3 - current_level_number / 4);          // added (temp)
     bool m_restState = false;
     int m_restTickCount = m_ticksToWait;
     int m_numMoveCurrDir;
-    Tunnelman *m_TM;                    // added to interact w/ TM
-    int m_lastShouted = 16;             // starts out being able to shout?
+    Tunnelman *m_TM;
+    int m_lastShouted = 16;                 // make bools for status & initialize to 0 & true
+    bool m_shoutStatus = true;
+    int m_lastPerpendicular = 201;          // 0
+    bool m_perpendicularState = true;
+    
+    // have a function that is called to push all the available spot onto the queue
+    std::queue<coord> m_locations;
+    std::queue<coord> m_pathOut;
 };
 
 class RegularProtester : public Protester {
