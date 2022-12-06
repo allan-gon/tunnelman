@@ -57,6 +57,8 @@ void StudentWorld::placeBoulders() {
   // for now places a single boulder in a fixed location
   this->actors.push_back(std::move(new Boulder(10, 50, *this)));
   this->clear4by4(10, 50);
+  this->actors.push_back(std::move(new Boulder(8, 30, *this)));
+  this->clear4by4(8, 30);
 }
 
 int StudentWorld::init() {
@@ -75,6 +77,8 @@ int StudentWorld::move() {
   // TODO: update text
   player->doSomething();
 
+  // destruct actors who are dead on this tick. Have all others
+  // doSomething
   for (auto it = this->actors.begin(); it != this->actors.end();) {
     if (!(*it)->getAlive()) {
       delete *it;

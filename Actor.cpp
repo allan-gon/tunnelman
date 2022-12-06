@@ -41,7 +41,7 @@ void Boulder::doSomething() {
       }
     } else if (this->getState() == falling) { // if falling
       // if not at the bottom and no dirt or earth directly below
-      if ((this->getY() > 0) && !this->getWorld()->boulderExists(this) &&
+      if ((this->getY() > 0) && !this->getWorld()->boulderObstructs(this) &&
           !this->getWorld()->dirtBelow(this->getX(), this->getY())) {
         this->getWorld()->boulderAnnoyActors(this->getX(), this->getY());
         this->moveTo(this->getX(), this->getY() - 1); // move down 1 row
@@ -125,7 +125,7 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == down) {
         if (this->getY() != 0) {
           this->getWorld()->digDirtUD(this->getX(), this->getY() - 1);
-          if (!this->getWorld()->boulderObstructs(this)) { // was boulderExists
+          if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX(), this->getY() - 1);
           }
         }
