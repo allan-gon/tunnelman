@@ -27,10 +27,10 @@ public:
 
   // helper functions for boulder
   bool dirtBelow(int x, int y);
-  bool boulderExists(Actor* object);
   void clear4by4(int x, int y);
   void boulderAnnoyActors(int x, int y);
-  bool boulderObstructs(Actor* object);
+  bool boulderObstructs(Actor *object);
+  void generateBoulderCoords(int &x, int &y);
 
   ~StudentWorld();
 

@@ -1,16 +1,10 @@
 #include "StudentWorld.h"
 #include "Actor.h"
 #include <algorithm> // this guy's needed because find cries without
-#include <map>
 #include <random>
 #include <string>
 #include <vector>
 using namespace std;
-
-// max number of spawnanble consumables on a single level
-const unsigned int MAX_BOULDERS = 9;
-const unsigned int MIN_GOLD_NUGGETS = 2;
-const unsigned int MAX_OIL_BARRELS = 21;
 
 // int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
 // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
@@ -25,12 +19,9 @@ bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
   return dist <= max_dist;
 }
 
-// bool validSpawn(int x1, int y1, int x2, int y2) {
-//   // returns whether or not the distance between point 1
-//   // and point 2 is > 6. Helper for StudentWorld::init
-//   float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
-//   return dist > 6;
-// }
+bool inValid(int x, int y) {
+  return (y > 56) || ((y > 3) && ((x > 30) && (x < 34)));
+}
 
 void StudentWorld::clear4by4(int x, int y) {
   // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
@@ -53,22 +44,46 @@ void StudentWorld::populateField() {
   }
 }
 
+void StudentWorld::generateBoulderCoords(int &x, int &y) {
+  std::random_device rd;  // obtain random number from harware
+  std::mt19937 gen(rd()); // seed the generator
+  std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
+  std::uniform_int_distribution<> y_dist(20, 56);
+  bool generated = false;
+  int temp_x, temp_y;
+  while (!generated) {
+    temp_x = x_dist(gen);
+    temp_y = y_dist(gen);
+    for (auto actor : this->actors) {
+      if (inRange(temp_x, temp_y, actor->getX(), actor->getY()) ||
+          inValid(temp_x, temp_y)) {
+        continue;
+      }
+    }
+    x = temp_x;
+    y = temp_y;
+    generated = true;
+  }
+}
+
 void StudentWorld::placeBoulders() {
-  // for now places a single boulder in a fixed location
-  this->actors.push_back(std::move(new Boulder(10, 50, *this)));
-  this->clear4by4(10, 50);
-  this->actors.push_back(std::move(new Boulder(8, 30, *this)));
-  this->clear4by4(8, 30);
+  // calc num boulders for this level
+  int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
+  int x, y;
+
+  for (int i = 0; i < num_boulders; i++) {
+    this->generateBoulderCoords(x, y);
+    this->actors.push_back(std::move(new Boulder(x, y, *this)));
+    this->clear4by4(x, y);
+  }
 }
 
 int StudentWorld::init() {
-  // initializes tunnelman & provides the studentWorld address
   this->player = std::move(new Tunnelman(*this));
 
-  // place earth in field
   this->populateField();
-  // place boulders
   this->placeBoulders();
+
   // TODO: spawn all other NEs
   return GWSTATUS_CONTINUE_GAME;
 }
@@ -89,7 +104,6 @@ int StudentWorld::move() {
     }
   }
 
-  // TODO: check if when 3 lives are exhausted game gracfully kys
   if (this->player->getAlive()) {  // alive
     if (!this->num_barrels_left) { // finished level
       this->playSound(SOUND_FINISHED_LEVEL);
@@ -103,7 +117,6 @@ int StudentWorld::move() {
 }
 
 void StudentWorld::cleanUp() {
-  std::cout << this->getLives() << std::endl;
   // frees memory from tunnelman + fix dangling pointer
   delete this->player;
   this->player = nullptr;
@@ -157,33 +170,6 @@ bool StudentWorld::dirtBelow(int x, int y) {
   return false;
 }
 
-bool StudentWorld::boulderExists(Actor *object) {
-  // use unordered map to reduce ifs
-  // key = directions: value = [x, y, x_range, y_range]
-
-  int x_modifier = 0, y_modifier = 0;
-  if (object->getDirection() == 1) { // up
-    y_modifier = y_modifier + 4;
-  } else if (object->getDirection() == 2) { // down
-    y_modifier = y_modifier - 4;
-  } else if (object->getDirection() == 3) { // left
-    x_modifier = x_modifier - 4;
-  } else { // right
-    x_modifier = x_modifier + 4;
-  }
-
-  // TODO: THIS GUYS IS BROKEN
-  for (auto actor : this->actors) {
-    if (actor->getID() == TID_BOULDER) {
-      if ((actor->getX() == object->getX() + x_modifier) &&
-          (actor->getY() == object->getY() + y_modifier)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 bool StudentWorld::boulderObstructs(Actor *object) {
   // check is boulder is within +/- 3 of specific actor
   // accessed dir direction - 1
@@ -217,9 +203,21 @@ bool StudentWorld::boulderObstructs(Actor *object) {
 }
 
 void StudentWorld::boulderAnnoyActors(int x, int y) {
+  // really hate there being duplicate coed here.
+  // consider adding tunnelman to actor vector
   if (inRange(this->player->getX(), this->player->getY(), x, y, 3)) {
     this->player->setAlive(false);
     return; // Nothing else must be checked since player died
+  }
+
+  for (auto actor : this->actors) {
+    // only other actors that can be annoyed?
+    if ((actor->getID() == TID_PROTESTER) ||
+        (actor->getID() == TID_HARD_CORE_PROTESTER)) {
+      if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
+        actor->setAlive(false);
+      }
+    }
   }
 }
 

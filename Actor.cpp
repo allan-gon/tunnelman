@@ -17,14 +17,11 @@ Earth::Earth(int startX, int startY)
 Boulder::Boulder(int startX, int startY, StudentWorld &world)
     : Actor(true, TID_BOULDER, startX, startY, down, 1), m_world(&world) {}
 
-// State Boulder::getState() { return this->m_state; }
-
 void Boulder::setState(State state) { this->m_state = state; }
 
 StudentWorld *Boulder::getWorld() { return this->m_world; }
 
 void Boulder::doSomething() {
-  // TODO: missing, boulder does damage to entities
   if (this->getAlive()) {             // if alive
     if (this->getState() == stable) { // if stable
       if (!(this->getWorld()->dirtBelow(
@@ -92,7 +89,6 @@ void Tunnelman::setGold(int gold) { this->m_gold = gold; }
 int Tunnelman::getGold() { return this->m_gold; }
 
 void Tunnelman::doSomething() {
-  // TODO: don't move if boulder
   int key;
   // if player is alive and a key was pressed
   if (this->getAlive() && this->getWorld()->getKey(key)) {

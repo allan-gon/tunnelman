@@ -1,7 +1,11 @@
 #ifndef ACTOR_H_
 #define ACTOR_H_
-
 #include "GraphObject.h"
+
+// constants must be here according to spec
+const unsigned int MAX_BOULDERS = 9;
+const unsigned int MIN_GOLD_NUGGETS = 2;
+const unsigned int MAX_OIL_BARRELS = 21;
 
 // forward declaration to use studentWorld pointer
 class StudentWorld;
