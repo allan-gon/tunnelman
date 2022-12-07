@@ -20,6 +20,7 @@ public:
   virtual void annoy() = 0;
   bool getAlive();
   void setAlive(bool alive);
+  virtual ~Actor();
 
 private:
   bool is_alive = true;
@@ -107,7 +108,7 @@ public:
 
   Protester(int imageID, StudentWorld &game, Tunnelman &TM);
 
-  virtual void annoy();
+  virtual void annoy() = 0;
 
   void setLeaveStatus(bool leaveOilField);
   bool getLeaveStatus();

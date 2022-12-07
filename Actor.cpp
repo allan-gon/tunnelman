@@ -13,6 +13,8 @@ bool Actor::getAlive() { return this->is_alive; }
 
 void Actor::setAlive(bool alive) { this->is_alive = alive; }
 
+Actor::~Actor(){};
+
 Earth::Earth(int startX, int startY)
     : Actor(true, TID_EARTH, startX, startY, right, 3, 0.25) {}
 
@@ -71,6 +73,8 @@ void Entity::setWorld(StudentWorld &game) { m_game = &game; }
 StudentWorld *Entity::getWorld() { return m_game; }
 
 void Entity::doSomething() { return; }
+
+void Entity::annoy() { return; }
 
 Entity::~Entity() {}
 
@@ -177,6 +181,9 @@ Protester::Protester(int imageID, StudentWorld &game, Tunnelman &TM)
     : Entity(imageID, 60, 60, left, game), m_TM(&TM) {
   this->initMovesCurrDir();
 }
+void Protester::annoy() { return; }
+
+void Protester::doSomething() { return; }
 
 void Protester::setLeaveStatus(bool leaveOilField) {
   m_leaveOilField = leaveOilField;

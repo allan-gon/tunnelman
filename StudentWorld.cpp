@@ -23,9 +23,6 @@ bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
 }
 
 bool intersectShaft(int x) { return ((x > 26) && (x < 34)); }
-// 26 < x < 34
-// caught if
-// x = 30, 32
 
 void StudentWorld::clear4by4(int x, int y) {
   // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
@@ -97,14 +94,18 @@ void StudentWorld::placeBoulders() {
   }
 }
 
+void StudentWorld::addProtestors() {
+  // TODO: figure out how many protestors to add
+  // for now just adds one protester
+  this->actors.push_back(std::move(new RegularProtester(*this, *player)));
+}
+
 int StudentWorld::init() {
   this->player = std::move(new Tunnelman(*this));
 
-  this->p1 = std::move(
-      new RegularProtester(*this, *player)); // testing regular protester
-
   this->populateField();
   this->placeBoulders();
+  this->addProtestors();
 
   // TODO: spawn all other NEs
   return GWSTATUS_CONTINUE_GAME;
@@ -113,7 +114,6 @@ int StudentWorld::init() {
 int StudentWorld::move() {
   // TODO: update text
   player->doSomething();
-  p1->doSomething(); // testing regular protester
 
   // destruct actors who are dead on this tick. Have all others
   // doSomething
