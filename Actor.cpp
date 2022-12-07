@@ -675,7 +675,13 @@ void OilBarrel::doSomething() {
                   this->getWorld()->getPlayer()->getY(), 4)) {
         this->setVisible(true);
       }
-    } else {} // if visible what do
+    } else {
+      if (inRange(this->getX(), this->getY(),
+                  this->getWorld()->getPlayer()->getX(),
+                  this->getWorld()->getPlayer()->getY(), 3)) {
+      this->setAlive(false);
+      }
+    }
   }
 }
 
