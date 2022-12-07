@@ -7,11 +7,7 @@
 #include <vector>
 using namespace std;
 
-// In-argueably my condition doesn't catch this
-
-// int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
 // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
-// int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
 
 GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
@@ -48,12 +44,12 @@ void StudentWorld::populateField() {
   }
 }
 
-void StudentWorld::generateBoulderCoords(int &x, int &y) {
+void StudentWorld::generateActorCoords(int &x, int &y, int y_left = 0) {
   // TODO: ask about range
   std::random_device rd;  // obtain random number from harware
   std::mt19937 gen(rd()); // seed the generator
   std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
-  std::uniform_int_distribution<> y_dist(20, 56);
+  std::uniform_int_distribution<> y_dist(y_left, 56);
   bool generated = false;
   bool broke = false;
   int temp_x, temp_y;
@@ -88,9 +84,19 @@ void StudentWorld::placeBoulders() {
   int x, y;
 
   for (int i = 0; i < num_boulders; i++) {
-    this->generateBoulderCoords(x, y);
+    this->generateActorCoords(x, y, 20);
     this->actors.push_back(std::move(new Boulder(x, y, *this)));
     this->clear4by4(x, y);
+  }
+}
+
+void StudentWorld::placeBarrels() {
+  int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
+  int x, y;
+
+  for (int i = 0; i < num_oil; i++) {
+    this->generateActorCoords(x, y);
+    this->actors.push_back(std::move(new OilBarrel(x, y, *this)));
   }
 }
 
@@ -105,6 +111,7 @@ int StudentWorld::init() {
 
   this->populateField();
   this->placeBoulders();
+  this->placeBarrels();
   this->addProtestors();
 
   // TODO: spawn all other NEs

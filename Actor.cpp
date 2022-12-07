@@ -662,3 +662,17 @@ void RegularProtester::doSomething() {
 void RegularProtester::annoy() {}
 
 RegularProtester::~RegularProtester() {}
+
+// visible should be false
+OilBarrel::OilBarrel(int x, int y, StudentWorld &world)
+    : Actor(true, TID_BARREL, x, y, right, 2), m_world(&world) {
+  //
+}
+
+void OilBarrel::doSomething() {}
+
+void OilBarrel::annoy() {}
+
+StudentWorld *OilBarrel::getWorld() { return this->m_world; }
+
+OilBarrel::~OilBarrel() {}

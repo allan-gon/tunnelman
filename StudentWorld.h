@@ -39,7 +39,10 @@ public:
   void clear4by4(int x, int y);
   void boulderAnnoyActors(int x, int y);
   bool boulderObstructs(Actor *object);
-  void generateBoulderCoords(int &x, int &y);
+  void generateActorCoords(int &x, int &y, int y_left);
+
+  // helper functions for oil barrel
+  void placeBarrels();
 
   ~StudentWorld();
 

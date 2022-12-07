@@ -185,4 +185,18 @@ public:
 private:
 };
 
+class OilBarrel : public Actor {
+public:
+  OilBarrel(int x, int y, StudentWorld &world);
+
+  virtual void annoy();
+  virtual void doSomething();
+  virtual ~OilBarrel();
+
+  StudentWorld *getWorld();
+
+private:
+  StudentWorld *m_world;
+};
+
 #endif // ACTOR_H_
