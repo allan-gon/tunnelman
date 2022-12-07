@@ -42,6 +42,7 @@ public:
   void generateActorCoords(int &x, int &y, int y_left);
 
   // helper functions for oil barrel
+  void decBarrels();
   void placeBarrels();
   Tunnelman *getPlayer();
 
@@ -49,7 +50,7 @@ public:
 
 private:
   // this value needs to be calcd
-  int num_barrels_left = 1;
+  int num_barrels_left;
   // intialize multi-dim array of Earth ptrs to nullptr
   Earth *field[VIEW_WIDTH][VIEW_HEIGHT] = {};
   // container for all actors other than tunnel man and earth

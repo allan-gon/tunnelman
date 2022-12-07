@@ -22,6 +22,8 @@ bool intersectShaft(int x) { return ((x > 26) && (x < 34)); }
 
 Tunnelman *StudentWorld::getPlayer() { return this->player; }
 
+void StudentWorld::decBarrels() { this->num_barrels_left--; }
+
 void StudentWorld::clear4by4(int x, int y) {
   // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
   for (int i = 0; i < 4; i++) {
@@ -94,6 +96,7 @@ void StudentWorld::placeBoulders() {
 
 void StudentWorld::placeBarrels() {
   int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
+  this->num_barrels_left = num_oil;
   int x, y;
 
   for (int i = 0; i < num_oil; i++) {
@@ -122,6 +125,8 @@ int StudentWorld::init() {
 }
 
 int StudentWorld::move() {
+
+  this->setGameStatText("Score: " + to_string(this->getScore()));
   // TODO: update text
   player->doSomething();
 

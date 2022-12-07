@@ -679,7 +679,10 @@ void OilBarrel::doSomething() {
       if (inRange(this->getX(), this->getY(),
                   this->getWorld()->getPlayer()->getX(),
                   this->getWorld()->getPlayer()->getY(), 3)) {
-      this->setAlive(false);
+        this->setAlive(false);
+        this->getWorld()->playSound(SOUND_FOUND_OIL);
+        this->getWorld()->increaseScore(1000);
+        this->getWorld()->decBarrels();
       }
     }
   }
