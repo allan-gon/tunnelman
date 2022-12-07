@@ -16,9 +16,9 @@ void Actor::setAlive(bool alive) { this->is_alive = alive; }
 Earth::Earth(int startX, int startY)
     : Actor(true, TID_EARTH, startX, startY, right, 3, 0.25) {}
 
-// bool Earth::getDiscovered() { return m_discovered; }
+bool Earth::getDiscovered() { return m_discovered; }
 
-// void Earth::setDiscovered(bool discovered) { m_discovered = discovered; }
+void Earth::setDiscovered(bool discovered) { m_discovered = discovered; }
 
 // Boulder::Boulder(bool visible, int startX, int startY, int imageID,
 //                  Direction dir, unsigned int depth)
@@ -177,6 +177,12 @@ void Protester::setLastPerpendicular(int numLastPerpendicular) { m_lastPerpendic
 
 int Protester::getLastPerpendicular() { return m_lastPerpendicular; }
 
+// =================================================================================================
+std::queue<Protester::coord>* Protester::getLocations() { return &m_locations; }
+
+std::queue<Protester::coord>* Protester::getPathOut() { return &m_pathOut; }
+// =================================================================================================
+
 double Protester::getUnitsFromTM() {
     int x = this->getX() - m_TM->getX();
     int y = this->getY() - m_TM->getY();
@@ -317,6 +323,28 @@ enum Actor::Direction Protester::checkTrapped(Direction dir) {
     return none;
 }
 
+bool Protester::checkTMLR(int x, int y) {
+    for (int i = 0; i < 4; i++) {
+        if (this->getWorld()->inTMy(y + i)) {
+            if (this->getWorld()->inTMx(x)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Protester::checkTMUD(int x, int y, Direction dir) {
+    for (int i = 0; i < 4; i++) {
+        if (this->getWorld()->inTMx(x + i)) {
+            if (this->getWorld()->inTMy(y)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void Protester::protesterYells() {
     this->getWorld()->playSound(SOUND_PROTESTER_YELL);
     this->setLastShouted(0);
@@ -375,7 +403,17 @@ void RegularProtester::doSomething() {
         }
         else {
             // algorithm to move the protester 1 step towards the exit & return
-            
+//            std::queue<coord>* locPtr = getLocations();
+//            coord curr;
+//            curr.x = this->getX();
+//            curr.y = this->getY();
+//            locPtr->push(curr);
+//            this->getWorld()->setEarthDiscovered(this->getX(), this->getY());
+//
+//            if (locPtr->empty()) {
+//
+//            }
+//
             // add all values to the locations queue
             // pop values from the location and add to the path queue?
         }
@@ -404,6 +442,10 @@ void RegularProtester::doSomething() {
     bool turned = false;
     this->setMovesCurrDir(this->getMovesCurrDir() - 1);
     if (this->getMovesCurrDir() <= 0) {
+        // stops spazing out
+        if (this->getFacingTM() && this->getUnitsFromTM() <= 4 && (this->getX() == this->getTM()->getX() || this->getY() == this->getTM()->getY())) {
+            return;
+        }
         bool decided = false;
         Direction randDir;
         // currDir & both perpendicular Dirs are blocked, go back opposite way
@@ -484,25 +526,41 @@ void RegularProtester::doSomething() {
     switch (currDir) {
         case up:
             if (this->getY() != 60 && this->getWorld()->positionClearUD(this->getX(), this->getY() + 4)) {
-                this->moveTo(this->getX(), this->getY() + 1);
+                if (!this->getFacingTM() || this->checkTMUD(this->getX(), this->getY() + 4, up)) {     // not facing TM or facing, but checked = true
+                    if (this->getUnitsFromTM() >= 4) {
+                        this->moveTo(this->getX(), this->getY() + 1);
+                    }
+                }
                 return;
             }
             break;
         case down:
             if (this->getY() != 0 && this->getWorld()->positionClearUD(this->getX(), this->getY() - 1)) {
-                this->moveTo(this->getX(), this->getY() - 1);
+                if (!this->getFacingTM() || this->checkTMUD(this->getX(), this->getY() - 4, down)) {
+                    if (this->getUnitsFromTM() >= 4) {
+                        this->moveTo(this->getX(), this->getY() - 1);
+                    }
+                }
                 return;
             }
             break;
         case right:
             if (this->getX() != 60 && this->getWorld()->positionClearLR(this->getX() + 4, this->getY())) {
-                this->moveTo(this->getX() + 1, this->getY());
+                if (!this->getFacingTM() || this->checkTMLR(this->getX() + 4, this->getY())) {
+                    if (this->getUnitsFromTM() >= 4) {
+                        this->moveTo(this->getX() + 1, this->getY());
+                    }
+                }
                 return;
             }
             break;
         case left:
             if (this->getX() != 0 && this->getWorld()->positionClearLR(this->getX() - 1, this->getY())) {
-                this->moveTo(this->getX() - 1, this->getY());
+                if (!this->getFacingTM() || this->checkTMLR(this->getX() - 4, this->getY())) {
+                    if (this->getUnitsFromTM() >= 4) {
+                        this->moveTo(this->getX() - 1, this->getY());
+                    }
+                }
                 return;
             }
             break;

@@ -27,6 +27,11 @@ public:
     bool positionClearLR(int x, int y);
     bool positionClearUD(int x, int y);
     
+    int inTMx(int x);
+    int inTMy(int y);
+    
+    void setEarthDiscovered(int x, int y);
+    
   ~StudentWorld();
 
 private:

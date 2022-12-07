@@ -27,8 +27,8 @@ public:
   // required because parent is pure virtual
   virtual void doSomething() { return; };
     
-  // bool getDiscovered();
-  // void setDiscovered(bool discovered);
+  bool getDiscovered();
+  void setDiscovered(bool discovered);
     
 private:
   bool m_discovered = false;              // added for the queue??
@@ -121,12 +121,18 @@ public:
     void setLastPerpendicular(int numLastPerpendicular);
     int getLastPerpendicular();
     
+    std::queue<coord>* getLocations();
+    std::queue<coord>* getPathOut();
+    
     double getUnitsFromTM();
     bool getFacingTM();
     bool lineOfSightTM();
     bool turnsTowardsTM();
     bool chooseDirection(Direction dir);
     enum Direction checkTrapped(Direction dir);
+    
+    bool checkTMLR(int x, int y);
+    bool checkTMUD(int x, int y, Direction dir);
     
     void protesterYells();
     bool checkPath(int start, int end, int same, bool changeX);

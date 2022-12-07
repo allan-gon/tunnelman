@@ -139,4 +139,16 @@ bool StudentWorld::positionClearUD(int x, int y) {
     return true;
 }
 
+int StudentWorld::inTMx(int x) {
+    return (this->player->getX() < x && this->player->getX() + 4 > x);
+}
+
+int StudentWorld::inTMy(int y) {
+    return (this->player->getY() < y && this->player->getY() + 4 > y);
+}
+
+void StudentWorld::setEarthDiscovered(int x, int y) {
+    field[x][y] -> setDiscovered(true);
+}
+
 StudentWorld::~StudentWorld() {}
