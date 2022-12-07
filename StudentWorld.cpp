@@ -13,12 +13,14 @@ GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
 }
 
-bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
+bool inRange(int x1, int y1, int x2, int y2, float max_dist) {
   float dist = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
   return dist <= max_dist;
 }
 
 bool intersectShaft(int x) { return ((x > 26) && (x < 34)); }
+
+Tunnelman *StudentWorld::getPlayer() { return this->player; }
 
 void StudentWorld::clear4by4(int x, int y) {
   // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
@@ -96,6 +98,7 @@ void StudentWorld::placeBarrels() {
 
   for (int i = 0; i < num_oil; i++) {
     this->generateActorCoords(x, y);
+    std::cout << x << ',' << y << std::endl;
     this->actors.push_back(std::move(new OilBarrel(x, y, *this)));
   }
 }

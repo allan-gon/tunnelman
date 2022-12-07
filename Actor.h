@@ -187,6 +187,8 @@ private:
 
 class OilBarrel : public Actor {
 public:
+  // enum State{pickup, }
+
   OilBarrel(int x, int y, StudentWorld &world);
 
   virtual void annoy();
@@ -198,5 +200,7 @@ public:
 private:
   StudentWorld *m_world;
 };
+
+bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);
 
 #endif // ACTOR_H_

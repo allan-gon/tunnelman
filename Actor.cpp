@@ -665,11 +665,19 @@ RegularProtester::~RegularProtester() {}
 
 // visible should be false
 OilBarrel::OilBarrel(int x, int y, StudentWorld &world)
-    : Actor(true, TID_BARREL, x, y, right, 2), m_world(&world) {
-  //
-}
+    : Actor(false, TID_BARREL, x, y, right, 2), m_world(&world) {}
 
-void OilBarrel::doSomething() {}
+void OilBarrel::doSomething() {
+  if (this->getAlive()) {
+    if (!this->isVisible()) {
+      if (inRange(this->getX(), this->getY(),
+                  this->getWorld()->getPlayer()->getX(),
+                  this->getWorld()->getPlayer()->getY(), 4)) {
+        this->setVisible(true);
+      }
+    } else {} // if visible what do
+  }
+}
 
 void OilBarrel::annoy() {}
 

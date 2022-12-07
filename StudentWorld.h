@@ -43,6 +43,7 @@ public:
 
   // helper functions for oil barrel
   void placeBarrels();
+  Tunnelman *getPlayer();
 
   ~StudentWorld();
 
