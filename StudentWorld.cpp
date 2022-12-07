@@ -1,10 +1,13 @@
 #include "StudentWorld.h"
 #include "Actor.h"
 #include <algorithm> // this guy's needed because find cries without
+#include <fstream>
 #include <random>
 #include <string>
 #include <vector>
 using namespace std;
+
+// In-argueably my condition doesn't catch this
 
 // int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
 // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
@@ -15,19 +18,23 @@ GameWorld *createStudentWorld(string assetDir) {
 }
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
-  float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+  float dist = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
   return dist <= max_dist;
 }
 
-bool inValid(int x, int y) {
-  return (y > 56) || ((y > 3) && ((x > 30) && (x < 34)));
-}
+bool intersectShaft(int x) { return ((x > 26) && (x < 34)); }
+// 26 < x < 34
+// caught if
+// x = 30, 32
 
 void StudentWorld::clear4by4(int x, int y) {
   // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      this->field[x + i][y + j]->setVisible(false);
+      if (this->field[x + i][y + j] == nullptr) {
+      } else {
+        this->field[x + i][y + j]->setVisible(false);
+      }
     }
   }
 }
@@ -45,24 +52,36 @@ void StudentWorld::populateField() {
 }
 
 void StudentWorld::generateBoulderCoords(int &x, int &y) {
+  // TODO: ask about range
   std::random_device rd;  // obtain random number from harware
   std::mt19937 gen(rd()); // seed the generator
   std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
   std::uniform_int_distribution<> y_dist(20, 56);
   bool generated = false;
+  bool broke = false;
   int temp_x, temp_y;
   while (!generated) {
     temp_x = x_dist(gen);
     temp_y = y_dist(gen);
-    for (auto actor : this->actors) {
-      if (inRange(temp_x, temp_y, actor->getX(), actor->getY()) ||
-          inValid(temp_x, temp_y)) {
-        continue;
+    if (intersectShaft(temp_x)) {
+      continue;
+    } else {
+      for (auto actor : this->actors) {
+        if (inRange(temp_x, temp_y, actor->getX(), actor->getY())) {
+          broke = true;
+          break;
+        }
       }
     }
-    x = temp_x;
-    y = temp_y;
-    generated = true;
+
+    if (broke) {
+      broke = false;
+      continue;
+    } else {
+      x = temp_x;
+      y = temp_y;
+      generated = true;
+    }
   }
 }
 
@@ -215,7 +234,7 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
     if ((actor->getID() == TID_PROTESTER) ||
         (actor->getID() == TID_HARD_CORE_PROTESTER)) {
       if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
-        actor->setAlive(false);
+        // actor->setLeaveStatus(true);
       }
     }
   }
