@@ -12,6 +12,7 @@ public:
   StudentWorld(std::string assetDir) : GameWorld(assetDir) {}
 
   void populateField();
+  void placeBoulders();
 
   virtual int init();
 
@@ -19,28 +20,37 @@ public:
 
   virtual void cleanUp();
 
-  // getting earth field info
+  bool positionClearLR(int x, int y);
+  bool positionClearUD(int x, int y);
+
+  int inTMx(int x);
+  int inTMy(int y);
+
+  void setEarthDiscovered(int x, int y);
+
+  // helper functions for tunnelman
   bool dirtExistsVisible(int x, int y);
   void digDirtLR(int x, int y);
   void digDirtUD(int x, int y);
-  bool dirtVisible(int x, int y);
-    bool positionClearLR(int x, int y);
-    bool positionClearUD(int x, int y);
-    
-    int inTMx(int x);
-    int inTMy(int y);
-    
-    void setEarthDiscovered(int x, int y);
-    
+
+  // helper functions for boulder
+  bool dirtBelow(int x, int y);
+  void clear4by4(int x, int y);
+  void boulderAnnoyActors(int x, int y);
+  bool boulderObstructs(Actor *object);
+  void generateBoulderCoords(int &x, int &y);
+
   ~StudentWorld();
 
 private:
+  // this value needs to be calcd
+  int num_barrels_left = 1;
   // intialize multi-dim array of Earth ptrs to nullptr
   Earth *field[VIEW_WIDTH][VIEW_HEIGHT] = {};
   // container for all actors other than tunnel man and earth
   std::vector<Actor *> actors;
   Tunnelman *player = nullptr;
-    Protester *p1 = nullptr;                        // testing regular protester
+  Protester *p1 = nullptr; // testing regular protester
 };
 
 #endif // STUDENTWORLD_H_

@@ -1,15 +1,13 @@
 #include "StudentWorld.h"
 #include "Actor.h"
 #include <algorithm> // this guy's needed because find cries without
+#include <fstream>
 #include <random>
 #include <string>
 #include <vector>
 using namespace std;
 
-// max number of spawnanble consumables on a single level
-const unsigned int MAX_BOULDERS = 9;
-const unsigned int MIN_GOLD_NUGGETS = 2;
-const unsigned int MAX_OIL_BARRELS = 21;
+// In-argueably my condition doesn't catch this
 
 // int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
 // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
@@ -19,11 +17,26 @@ GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
 }
 
-bool validSpawn(int x1, int y1, int x2, int y2) {
-  // returns whether or not the distance between point 1
-  // and point 2 is > 6. Helper for StudentWorld::init
-  float dist = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
-  return dist > 6;
+bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
+  float dist = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+  return dist <= max_dist;
+}
+
+bool intersectShaft(int x) { return ((x > 26) && (x < 34)); }
+// 26 < x < 34
+// caught if
+// x = 30, 32
+
+void StudentWorld::clear4by4(int x, int y) {
+  // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (this->field[x + i][y + j] == nullptr) {
+      } else {
+        this->field[x + i][y + j]->setVisible(false);
+      }
+    }
+  }
 }
 
 void StudentWorld::populateField() {
@@ -38,24 +51,92 @@ void StudentWorld::populateField() {
   }
 }
 
+void StudentWorld::generateBoulderCoords(int &x, int &y) {
+  // TODO: ask about range
+  std::random_device rd;  // obtain random number from harware
+  std::mt19937 gen(rd()); // seed the generator
+  std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
+  std::uniform_int_distribution<> y_dist(20, 56);
+  bool generated = false;
+  bool broke = false;
+  int temp_x, temp_y;
+  while (!generated) {
+    temp_x = x_dist(gen);
+    temp_y = y_dist(gen);
+    if (intersectShaft(temp_x)) {
+      continue;
+    } else {
+      for (auto actor : this->actors) {
+        if (inRange(temp_x, temp_y, actor->getX(), actor->getY())) {
+          broke = true;
+          break;
+        }
+      }
+    }
+
+    if (broke) {
+      broke = false;
+      continue;
+    } else {
+      x = temp_x;
+      y = temp_y;
+      generated = true;
+    }
+  }
+}
+
+void StudentWorld::placeBoulders() {
+  // calc num boulders for this level
+  int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
+  int x, y;
+
+  for (int i = 0; i < num_boulders; i++) {
+    this->generateBoulderCoords(x, y);
+    this->actors.push_back(std::move(new Boulder(x, y, *this)));
+    this->clear4by4(x, y);
+  }
+}
+
 int StudentWorld::init() {
-  // initializes tunnelman & provides the studentWorld address
   this->player = std::move(new Tunnelman(*this));
-    this->p1 = std::move(new RegularProtester(*this, *player));            // testing regular protester
-  // place earth in field
+
+  this->p1 = std::move(
+      new RegularProtester(*this, *player)); // testing regular protester
+
   this->populateField();
+  this->placeBoulders();
+
   // TODO: spawn all other NEs
   return GWSTATUS_CONTINUE_GAME;
 }
 
 int StudentWorld::move() {
+  // TODO: update text
   player->doSomething();
-    p1->doSomething();                                             // testing regular protester
+  p1->doSomething(); // testing regular protester
 
-  for (auto actor : this->actors) {
-    actor->doSomething();
+  // destruct actors who are dead on this tick. Have all others
+  // doSomething
+  for (auto it = this->actors.begin(); it != this->actors.end();) {
+    if (!(*it)->getAlive()) {
+      delete *it;
+      it = this->actors.erase(it);
+    } else {
+      (*it)->doSomething();
+      it++;
+    }
   }
-  return GWSTATUS_CONTINUE_GAME;
+
+  if (this->player->getAlive()) {  // alive
+    if (!this->num_barrels_left) { // finished level
+      this->playSound(SOUND_FINISHED_LEVEL);
+      return GWSTATUS_FINISHED_LEVEL;
+    }
+    return GWSTATUS_CONTINUE_GAME;
+  } else { // dead
+    this->decLives();
+    return GWSTATUS_PLAYER_DIED;
+  }
 }
 
 void StudentWorld::cleanUp() {
@@ -74,27 +155,27 @@ void StudentWorld::cleanUp() {
   }
 
   // free's any memory that was allocated to actors
-  for (int i = this->actors.size(); i >= 0; i--) {
-    delete this->actors[i];
-    this->actors.erase(this->actors.begin() + i - 1);
+  for (int i = 0; i < this->actors.size(); i++) {
+    delete this->actors[i]; // de-alloc
   }
+  this->actors.clear(); // empty
 }
 
-// dirtExists
+// dirtExistsVisible
 bool StudentWorld::dirtExistsVisible(int x, int y) {
-    return (this->field[x][y] != nullptr && this->field[x][y]->isVisible());
+  return (this->field[x][y] != nullptr) && this->field[x][y]->isVisible();
 }
 
 void StudentWorld::digDirtLR(int x, int y) {
   bool dug = false;
   for (int i = 0; i < 4; i++) {
     if (this->dirtExistsVisible(x, y + i)) { // ensure there's dirt there
-        field[x][y + i]->setVisible(false);
-        dug = true;
+      field[x][y + i]->setVisible(false);
+      dug = true;
     }
-  }
-  if (dug) {
-    playSound(SOUND_DIG);
+    if (dug) {
+      playSound(SOUND_DIG);
+    }
   }
 }
 
@@ -102,8 +183,8 @@ void StudentWorld::digDirtUD(int x, int y) {
   bool dug = false;
   for (int i = 0; i < 4; i++) {
     if (this->dirtExistsVisible(x + i, y)) { // ensure dirt is there
-        field[x + i][y]->setVisible(false);
-        dug = true;
+      field[x + i][y]->setVisible(false);
+      dug = true;
     }
   }
   if (dug) {
@@ -111,44 +192,100 @@ void StudentWorld::digDirtUD(int x, int y) {
   }
 }
 
-bool StudentWorld::dirtVisible(int x, int y) {
-    if (field[x][y] != nullptr) {
-        if (field[x][y]->isVisible()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool StudentWorld::positionClearLR(int x, int y) {
-    // do for loop to check the entire position to prevent walking into dirt
-    for (int i = 0; i < 4; i++) {
-        if ( x < 0 || x > 63 || y > 60 || y < 0 || (field[x][y + i] != nullptr && field[x][y + i]->isVisible())) {   // isVisible?
-            return false;
-        }
+  // do for loop to check the entire position to prevent walking into dirt
+  for (int i = 0; i < 4; i++) {
+    if (x < 0 || x > 63 || y > 60 || y < 0 ||
+        (field[x][y + i] != nullptr &&
+         field[x][y + i]->isVisible())) { // isVisible?
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 bool StudentWorld::positionClearUD(int x, int y) {
-    for (int i = 0; i < 4; i++) {
-        if ( y > 60 || y < 0 || x > 60 || x < 0 || (field[x + i][y] != nullptr && field[x + i][y]->isVisible())) {
-            return false;
-        }
+  for (int i = 0; i < 4; i++) {
+    if (y > 60 || y < 0 || x > 60 || x < 0 ||
+        (field[x + i][y] != nullptr && field[x + i][y]->isVisible())) {
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 int StudentWorld::inTMx(int x) {
-    return (this->player->getX() < x && this->player->getX() + 4 > x);
+  return (this->player->getX() < x && this->player->getX() + 4 > x);
 }
 
 int StudentWorld::inTMy(int y) {
-    return (this->player->getY() < y && this->player->getY() + 4 > y);
+  return (this->player->getY() < y && this->player->getY() + 4 > y);
 }
 
 void StudentWorld::setEarthDiscovered(int x, int y) {
-    field[x][y] -> setDiscovered(true);
+  field[x][y]->setDiscovered(true);
+}
+
+bool StudentWorld::dirtBelow(int x, int y) {
+  // if atleast one dirt block exists directly under 4 blocks from a location
+  // return true
+  for (int i = 0; i < 4; i++) {
+    if (this->dirtExistsVisible(x + i, y - 1)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool StudentWorld::boulderObstructs(Actor *object) {
+  // check is boulder is within +/- 3 of specific actor
+  // accessed dir direction - 1
+  int dir_modifier[4] = {4, -4, -4, 4};
+  bool is_vertical = false;
+  if ((object->getDirection() == 1) || (object->getDirection() == 2)) {
+    is_vertical = true;
+  }
+
+  for (auto actor : this->actors) {
+    if (actor->getID() == TID_BOULDER) {
+      if (is_vertical) {
+        for (int i = -3; i < 4; i++) {
+          if ((object->getX() + i == actor->getX()) &&
+              (object->getY() + dir_modifier[object->getDirection() - 1] ==
+               actor->getY())) {
+            return true;
+          }
+        }
+      } else {
+        for (int i = -3; i < 4; i++) {
+          if ((object->getX() + dir_modifier[object->getDirection() - 1] ==
+               actor->getX()) &&
+              (object->getY() + i == actor->getY()))
+            return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+void StudentWorld::boulderAnnoyActors(int x, int y) {
+  // really hate there being duplicate coed here.
+  // consider adding tunnelman to actor vector
+  if (inRange(this->player->getX(), this->player->getY(), x, y, 3)) {
+    this->player->setAlive(false);
+    return; // Nothing else must be checked since player died
+  }
+
+  for (auto actor : this->actors) {
+    // only other actors that can be annoyed?
+    if ((actor->getID() == TID_PROTESTER) ||
+        (actor->getID() == TID_HARD_CORE_PROTESTER)) {
+      if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
+        // actor->setLeaveStatus(true);
+      }
+    }
+  }
 }
 
 StudentWorld::~StudentWorld() {}
