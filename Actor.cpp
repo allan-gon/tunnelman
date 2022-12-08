@@ -90,11 +90,11 @@ void Tunnelman::setWaterUnits(int waterUnits) {
 
 int Tunnelman::getWaterUnits() { return this->m_waterUnits; }
 
-void Tunnelman::setSonarCharge(int sonarCharge) {
-  this->m_sonarCharge = sonarCharge;
-}
+void Tunnelman::incSonar() { this->m_sonarCharge++; }
 
-int Tunnelman::getSonarCharge() { return this->m_sonarCharge; }
+void Tunnelman::decSonar() { this->m_sonarCharge--; }
+
+int Tunnelman::getSonarCharge(){return this->m_sonarCharge;}
 
 void Tunnelman::setGold(int gold) { this->m_gold = gold; }
 
@@ -698,7 +698,21 @@ Sonar::Sonar(StudentWorld &world)
     : Actor(true, TID_SONAR, 0, 60, right, 2), m_world(&world) {}
 
 void Sonar::annoy() {}
-void Sonar::doSomething() {}
+void Sonar::doSomething() {
+  if (this->getAlive()) {
+    if (this->ticks_existed == this->getWorld()->getTicks()) {
+      this->setAlive(false);
+    } else if (inRange(this->getX(), this->getY(),
+                       this->getWorld()->getPlayer()->getX(),
+                       this->getWorld()->getPlayer()->getY(), 3)) {
+      this->setAlive(false);
+      this->getWorld()->getPlayer()->incSonar();
+      this->getWorld()->playSound(SOUND_GOT_GOODIE);
+      this->getWorld()->increaseScore(75);
+      this->ticks_existed++;
+    }
+  }
+}
 Sonar::~Sonar() {}
 
 StudentWorld *Sonar::getWorld() { return this->m_world; }

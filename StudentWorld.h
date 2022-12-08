@@ -46,6 +46,11 @@ public:
   void placeBarrels();
   Tunnelman *getPlayer();
 
+  // helper functions for sonar
+  void calcLifetimeTicks();
+  void placeSonar();
+  int getTicks();
+
   ~StudentWorld();
 
 private:
@@ -56,6 +61,7 @@ private:
   // container for all actors other than tunnel man and earth
   std::vector<Actor *> actors;
   Tunnelman *player = nullptr;
+  int consumable_ticks;
 };
 
 #endif // STUDENTWORLD_H_

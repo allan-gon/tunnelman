@@ -13,6 +13,10 @@ GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
 }
 
+void StudentWorld::calcLifetimeTicks() {
+  this->consumable_ticks = max(MIN_TICKS, 300 - 10 * this->getLevel());
+}
+
 bool inRange(int x1, int y1, int x2, int y2, float max_dist) {
   float dist = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
   return dist <= max_dist;
@@ -119,7 +123,10 @@ int StudentWorld::init() {
   this->placeBarrels();
   this->addProtestors();
 
-  this->actors.push_back(std::move(new Sonar(*this)));
+  this->calcLifetimeTicks();
+  this->placeSonar();
+
+  // I THINK 1/G of spawning a goodie here
 
   // TODO: spawn all other NEs
   return GWSTATUS_CONTINUE_GAME;
@@ -311,5 +318,11 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
     }
   }
 }
+
+void StudentWorld::placeSonar() {
+  this->actors.push_back(std::move(new Sonar(*this)));
+}
+
+int StudentWorld::getTicks() { return this->consumable_ticks; }
 
 StudentWorld::~StudentWorld() {}

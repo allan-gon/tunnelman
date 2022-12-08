@@ -7,6 +7,7 @@
 const unsigned int MAX_BOULDERS = 9;
 const unsigned int MIN_GOLD_NUGGETS = 2;
 const unsigned int MAX_OIL_BARRELS = 21;
+const unsigned int MIN_TICKS = 100;
 
 // forward declaration to use studentWorld pointer
 class StudentWorld;
@@ -84,7 +85,8 @@ public:
   // setters & getters
   void setWaterUnits(int waterUnits);
   int getWaterUnits();
-  void setSonarCharge(int sonarCharge);
+  void incSonar();
+  void decSonar();
   int getSonarCharge();
   void setGold(int gold);
   int getGold();
@@ -213,6 +215,7 @@ public:
 
 private:
   StudentWorld *m_world;
+  int ticks_existed = 0;
 };
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);
