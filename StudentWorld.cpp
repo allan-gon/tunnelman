@@ -125,7 +125,7 @@ int StudentWorld::init() {
   this->calcLifetimeTicks();
   this->placeSonar();
 
-  // I THINK 1/G of spawning a goodie here
+  this->calcG();
 
   // TODO: spawn all other NEs
   return GWSTATUS_CONTINUE_GAME;
@@ -143,6 +143,7 @@ int StudentWorld::move() {
                  " Scr: " + to_string(this->getScore());
   this->setGameStatText(stats);
 
+  this->trySpawnSonarGold();
   player->doSomething();
 
   // destruct actors who are dead on this tick. Have all others
@@ -325,5 +326,38 @@ void StudentWorld::placeSonar() {
 int StudentWorld::getTicks() { return this->consumable_ticks; }
 
 std::vector<Actor *> &StudentWorld::getActors() { return this->actors; }
+
+void StudentWorld::calcG() { this->G = this->getLevel() * 25 + 300; }
+
+void StudentWorld::trySpawnSonarGold() {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> create(1, this->G);
+  std::uniform_int_distribution<> sonar(1, 5);
+
+  bool broke = false;
+
+  if (create(gen) == 1) { // should place something
+    std::cout << "Should place something\n";
+    if (sonar(gen) == 1) {              // should place sonar
+      for (auto actor : this->actors) { // check there's not already a sonar
+        if (actor->getID() == TID_SONAR) {
+          broke = true;
+          break;
+        }
+      }
+      if (!broke) { // can place sonar
+        std::cout << "Place sonar\n";
+        this->placeSonar();
+      }
+    } else {
+      this->placeWater();
+    }
+  } else {
+    std::cout << "Nope\n";
+  }
+}
+
+void StudentWorld::placeWater() { std::cout << "Water not implemented\n"; }
 
 StudentWorld::~StudentWorld() {}

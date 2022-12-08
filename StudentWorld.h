@@ -49,8 +49,13 @@ public:
 
   // helper functions for sonar
   void calcLifetimeTicks();
+  void calcG();
   void placeSonar();
   int getTicks();
+  void trySpawnSonarGold();
+
+  // helper functions for water
+  void placeWater();
 
   ~StudentWorld();
 
@@ -63,6 +68,7 @@ private:
   std::vector<Actor *> actors;
   Tunnelman *player = nullptr;
   int consumable_ticks;
+  int G;
 };
 
 #endif // STUDENTWORLD_H_
