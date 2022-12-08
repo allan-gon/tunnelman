@@ -714,6 +714,7 @@ Sonar::Sonar(StudentWorld &world)
 void Sonar::annoy() {}
 void Sonar::doSomething() {
   if (this->getAlive()) {
+    this->ticks_existed++;
     if (this->ticks_existed == this->getWorld()->getTicks()) {
       this->setAlive(false);
     } else if (inRange(this->getX(), this->getY(),
@@ -723,7 +724,6 @@ void Sonar::doSomething() {
       this->getWorld()->getPlayer()->incSonar();
       this->getWorld()->playSound(SOUND_GOT_GOODIE);
       this->getWorld()->increaseScore(75);
-      this->ticks_existed++;
     }
   }
 }
