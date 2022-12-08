@@ -125,9 +125,10 @@ int StudentWorld::init() {
 }
 
 int StudentWorld::move() {
+  // TODO: justification is not set
   string stats = "Lvl: " + to_string(this->getLevel()) +
                  " Lives: " + to_string(this->getLives()) +
-                 " Hlth: " + to_string(this->player->getHitPoints()) +
+                 " Hlth: " + to_string(this->player->getHitPoints() * 10) +
                  "% Wtr: " + to_string(this->player->getWaterUnits()) +
                  " Gld: " + to_string(this->player->getGold()) +
                  " Oil Left: " + to_string(this->num_barrels_left) +
