@@ -114,11 +114,12 @@ void StudentWorld::addProtestors() {
 
 int StudentWorld::init() {
   this->player = std::move(new Tunnelman(*this));
-
   this->populateField();
   this->placeBoulders();
   this->placeBarrels();
   this->addProtestors();
+
+  this->actors.push_back(std::move(new Sonar(*this)));
 
   // TODO: spawn all other NEs
   return GWSTATUS_CONTINUE_GAME;

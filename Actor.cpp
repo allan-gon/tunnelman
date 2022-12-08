@@ -693,3 +693,12 @@ void OilBarrel::annoy() {}
 StudentWorld *OilBarrel::getWorld() { return this->m_world; }
 
 OilBarrel::~OilBarrel() {}
+
+Sonar::Sonar(StudentWorld &world)
+    : Actor(true, TID_SONAR, 0, 60, right, 2), m_world(&world) {}
+
+void Sonar::annoy() {}
+void Sonar::doSomething() {}
+Sonar::~Sonar() {}
+
+StudentWorld *Sonar::getWorld() { return this->m_world; }

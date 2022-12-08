@@ -201,6 +201,20 @@ private:
   StudentWorld *m_world;
 };
 
+class Sonar : public Actor {
+public:
+  Sonar(StudentWorld &world);
+
+  virtual void annoy();
+  virtual void doSomething();
+  virtual ~Sonar();
+
+  StudentWorld *getWorld();
+
+private:
+  StudentWorld *m_world;
+};
+
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);
 
 #endif // ACTOR_H_
