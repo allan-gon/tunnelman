@@ -84,9 +84,9 @@ Tunnelman::Tunnelman(StudentWorld &game)
   this->setHitPoints(10);
 }
 
-void Tunnelman::setWaterUnits(int waterUnits) {
-  this->m_waterUnits = waterUnits;
-}
+void Tunnelman::incWater5() { this->m_waterUnits = this->m_waterUnits + 5; }
+
+void Tunnelman::decWater() { this->m_waterUnits--; }
 
 int Tunnelman::getWaterUnits() { return this->m_waterUnits; }
 
@@ -714,7 +714,6 @@ Sonar::Sonar(StudentWorld &world)
 void Sonar::annoy() {}
 void Sonar::doSomething() {
   if (this->getAlive()) {
-    this->ticks_existed++;
     if (this->ticks_existed == this->getWorld()->getTicks()) {
       this->setAlive(false);
     } else if (inRange(this->getX(), this->getY(),
@@ -725,8 +724,35 @@ void Sonar::doSomething() {
       this->getWorld()->playSound(SOUND_GOT_GOODIE);
       this->getWorld()->increaseScore(75);
     }
+    this->ticks_existed++;
   }
 }
 Sonar::~Sonar() {}
 
 StudentWorld *Sonar::getWorld() { return this->m_world; }
+
+WaterPool::WaterPool(int x, int y, StudentWorld &world)
+    : Actor(true, TID_WATER_POOL, x, y, right, 2), m_world(&world) {}
+
+void WaterPool::annoy() {}
+
+void WaterPool::doSomething() {
+  if (this->getAlive()) {
+
+    if (this->ticks_existed == this->getWorld()->getTicks()) {
+      this->setAlive(false);
+    } else if (inRange(this->getX(), this->getY(),
+                       this->getWorld()->getPlayer()->getX(),
+                       this->getWorld()->getPlayer()->getY(), 3)) {
+      this->setAlive(false);
+      this->getWorld()->playSound(SOUND_GOT_GOODIE);
+      this->getWorld()->getPlayer()->incWater5();
+      this->getWorld()->increaseScore(100);
+    }
+    this->ticks_existed++;
+  }
+}
+
+WaterPool::~WaterPool() {}
+
+StudentWorld *WaterPool::getWorld() { return this->m_world; }

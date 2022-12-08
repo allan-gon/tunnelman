@@ -83,11 +83,14 @@ public:
   Tunnelman(StudentWorld &game);
 
   // setters & getters
-  void setWaterUnits(int waterUnits);
   int getWaterUnits();
+  void incWater5();
+  void decWater();
+
   void incSonar();
   void decSonar();
   int getSonarCharge();
+
   void setGold(int gold);
   int getGold();
 
@@ -211,6 +214,19 @@ public:
   virtual void doSomething();
   virtual ~Sonar();
 
+  StudentWorld *getWorld();
+
+private:
+  StudentWorld *m_world;
+  int ticks_existed = 0;
+};
+
+class WaterPool : public Actor {
+public:
+  WaterPool(int x, int y, StudentWorld &world);
+  virtual void annoy();
+  virtual void doSomething();
+  virtual ~WaterPool();
   StudentWorld *getWorld();
 
 private:

@@ -144,6 +144,7 @@ int StudentWorld::move() {
   this->setGameStatText(stats);
 
   this->trySpawnSonarWater();
+
   player->doSomething();
 
   // destruct actors who are dead on this tick. Have all others
@@ -354,6 +355,35 @@ void StudentWorld::trySpawnSonarWater() {
   }
 }
 
-void StudentWorld::placeWater() { std::cout << "Water not implemented\n"; }
+bool StudentWorld::isClear4x4(int x, int y) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (this->field[x + i][y + j] == nullptr) {
+      } else if (this->field[x + i][y + j]->isVisible()) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+void StudentWorld::placeWater() {
+  // gen x, y
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dist(0, 59);
+
+  int x, y;
+  bool generated = false;
+
+  while (!generated) {
+    x = dist(gen);
+    y = dist(gen);
+    if (this->isClear4x4(x, y)) {
+      this->actors.push_back(std::move(new WaterPool(x, y, *this)));
+      generated = true;
+    }
+  }
+}
 
 StudentWorld::~StudentWorld() {}

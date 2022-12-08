@@ -56,6 +56,7 @@ public:
 
   // helper functions for water
   void placeWater();
+  bool isClear4x4(int x, int y);
 
   ~StudentWorld();
 
