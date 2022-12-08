@@ -74,8 +74,6 @@ StudentWorld *Entity::getWorld() { return m_game; }
 
 void Entity::doSomething() { return; }
 
-void Entity::annoy() { return; }
-
 Entity::~Entity() {}
 
 // added the StudentWorld address & initializes the member variable
@@ -162,6 +160,9 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_TAB:
       break;
     case KEY_PRESS_SPACE:
+      if (this->getWaterUnits() > 0) {
+        this->decWater();
+      }
       break;
       // =================================================================================================
     case 'z':
@@ -184,18 +185,12 @@ void Tunnelman::doSomething() {
   }
 }
 
-void Tunnelman::annoy() {
-  // possibly should increase annoyance
-  this->setHitPoints(this->getHitPoints() - 100);
-}
-
 Tunnelman::~Tunnelman() {}
 
 Protester::Protester(int imageID, StudentWorld &game, Tunnelman &TM)
     : Entity(imageID, 60, 60, left, game), m_TM(&TM) {
   this->initMovesCurrDir();
 }
-void Protester::annoy() { return; }
 
 void Protester::doSomething() { return; }
 
@@ -673,8 +668,6 @@ void RegularProtester::doSomething() {
   this->setMovesCurrDir(0);
 }
 
-void RegularProtester::annoy() {}
-
 RegularProtester::~RegularProtester() {}
 
 // visible should be false
@@ -702,8 +695,6 @@ void OilBarrel::doSomething() {
   }
 }
 
-void OilBarrel::annoy() {}
-
 StudentWorld *OilBarrel::getWorld() { return this->m_world; }
 
 OilBarrel::~OilBarrel() {}
@@ -711,7 +702,6 @@ OilBarrel::~OilBarrel() {}
 Sonar::Sonar(StudentWorld &world)
     : Actor(true, TID_SONAR, 0, 60, right, 2), m_world(&world) {}
 
-void Sonar::annoy() {}
 void Sonar::doSomething() {
   if (this->getAlive()) {
     if (this->ticks_existed == this->getWorld()->getTicks()) {
@@ -733,8 +723,6 @@ StudentWorld *Sonar::getWorld() { return this->m_world; }
 
 WaterPool::WaterPool(int x, int y, StudentWorld &world)
     : Actor(true, TID_WATER_POOL, x, y, right, 2), m_world(&world) {}
-
-void WaterPool::annoy() {}
 
 void WaterPool::doSomething() {
   if (this->getAlive()) {

@@ -18,7 +18,6 @@ public:
         unsigned int depth, double size = 1.0);
 
   virtual void doSomething() = 0;
-  virtual void annoy() = 0;
   bool getAlive();
   void setAlive(bool alive);
   virtual ~Actor();
@@ -35,7 +34,6 @@ public:
   virtual void doSomething() { return; };
   bool getDiscovered();
   void setDiscovered(bool discovered);
-  virtual void annoy() { return; }
 
 private:
   bool m_discovered = false; // added for the queue??
@@ -47,7 +45,6 @@ public:
 
   Boulder(int startX, int startY, StudentWorld &world);
   virtual void doSomething();
-  virtual void annoy() { return; }
   State getState() { return this->m_state; }
   void setState(State state);
   StudentWorld *getWorld();
@@ -69,7 +66,6 @@ public:
   virtual void setHitPoints(int hitPoints);
   int getHitPoints();
   virtual void doSomething() = 0;
-  virtual void annoy() = 0;
 
   virtual ~Entity();
 
@@ -95,7 +91,6 @@ public:
   int getGold();
 
   virtual void doSomething();
-  virtual void annoy();
   virtual ~Tunnelman();
 
 private:
@@ -112,8 +107,6 @@ public:
   };
 
   Protester(int imageID, StudentWorld &game, Tunnelman &TM);
-
-  virtual void annoy() = 0;
 
   void setLeaveStatus(bool leaveOilField);
   bool getLeaveStatus();
@@ -183,7 +176,6 @@ class RegularProtester : public Protester {
 public:
   RegularProtester(StudentWorld &game, Tunnelman &TM);
 
-  virtual void annoy();
   virtual void doSomething();
   virtual ~RegularProtester();
 
@@ -196,7 +188,6 @@ public:
 
   OilBarrel(int x, int y, StudentWorld &world);
 
-  virtual void annoy();
   virtual void doSomething();
   virtual ~OilBarrel();
 
@@ -210,7 +201,6 @@ class Sonar : public Actor {
 public:
   Sonar(StudentWorld &world);
 
-  virtual void annoy();
   virtual void doSomething();
   virtual ~Sonar();
 
@@ -224,7 +214,6 @@ private:
 class WaterPool : public Actor {
 public:
   WaterPool(int x, int y, StudentWorld &world);
-  virtual void annoy();
   virtual void doSomething();
   virtual ~WaterPool();
   StudentWorld *getWorld();
@@ -232,6 +221,11 @@ public:
 private:
   StudentWorld *m_world;
   int ticks_existed = 0;
+};
+
+class Squirt : public Actor {
+public:
+  Squirt();
 };
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);
