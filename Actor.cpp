@@ -94,7 +94,7 @@ void Tunnelman::incSonar() { this->m_sonarCharge++; }
 
 void Tunnelman::decSonar() { this->m_sonarCharge--; }
 
-int Tunnelman::getSonarCharge(){return this->m_sonarCharge;}
+int Tunnelman::getSonarCharge() { return this->m_sonarCharge; }
 
 void Tunnelman::setGold(int gold) { this->m_gold = gold; }
 
@@ -164,6 +164,20 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_SPACE:
       break;
       // =================================================================================================
+    case 'z':
+    case 'Z':
+      if (this->getSonarCharge() > 0) {
+        this->decSonar();
+        for (auto actor : this->getWorld()->getActors()) {
+          if ((actor->getID() == TID_BARREL) || (actor->getID() == TID_GOLD)) {
+            if (inRange(this->getX(), this->getY(), actor->getX(),
+                        actor->getY(), 12)) {
+              actor->setVisible(true);
+            }
+          }
+        }
+      }
+      break;
     default:
       break;
     }

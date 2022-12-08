@@ -33,6 +33,7 @@ public:
   bool dirtExistsVisible(int x, int y);
   void digDirtLR(int x, int y);
   void digDirtUD(int x, int y);
+  std::vector<Actor *> &getActors();
 
   // helper functions for boulder
   bool dirtBelow(int x, int y);

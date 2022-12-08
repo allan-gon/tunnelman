@@ -53,7 +53,6 @@ void StudentWorld::populateField() {
 }
 
 void StudentWorld::generateActorCoords(int &x, int &y, int y_left = 0) {
-  // TODO: ask about range
   std::random_device rd;  // obtain random number from harware
   std::mt19937 gen(rd()); // seed the generator
   std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
@@ -143,7 +142,7 @@ int StudentWorld::move() {
                  " Sonar: " + to_string(this->player->getSonarCharge()) +
                  " Scr: " + to_string(this->getScore());
   this->setGameStatText(stats);
-  // TODO: update text
+
   player->doSomething();
 
   // destruct actors who are dead on this tick. Have all others
@@ -324,5 +323,7 @@ void StudentWorld::placeSonar() {
 }
 
 int StudentWorld::getTicks() { return this->consumable_ticks; }
+
+std::vector<Actor *> &StudentWorld::getActors() { return this->actors; }
 
 StudentWorld::~StudentWorld() {}
