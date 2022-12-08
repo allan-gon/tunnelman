@@ -125,8 +125,15 @@ int StudentWorld::init() {
 }
 
 int StudentWorld::move() {
-
-  this->setGameStatText("Score: " + to_string(this->getScore()));
+  string stats = "Lvl: " + to_string(this->getLevel()) +
+                 " Lives: " + to_string(this->getLives()) +
+                 " Hlth: " + to_string(this->player->getHitPoints()) +
+                 "% Wtr: " + to_string(this->player->getWaterUnits()) +
+                 " Gld: " + to_string(this->player->getGold()) +
+                 " Oil Left: " + to_string(this->num_barrels_left) +
+                 " Sonar: " + to_string(this->player->getSonarCharge()) +
+                 " Scr: " + to_string(this->getScore());
+  this->setGameStatText(stats);
   // TODO: update text
   player->doSomething();
 
