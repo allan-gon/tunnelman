@@ -52,7 +52,7 @@ public:
   void calcG();
   void placeSonar();
   int getTicks();
-  void trySpawnSonarGold();
+  void trySpawnSonarWater();
 
   // helper functions for water
   void placeWater();
