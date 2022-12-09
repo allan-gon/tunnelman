@@ -166,21 +166,41 @@ bool StudentWorld::dirtExistsVisible(int x, int y) {
   return (this->field[x][y] != nullptr) && this->field[x][y]->isVisible();
 }
 
-void StudentWorld::digDirtLR(int x, int y) {
+void StudentWorld::digDirtLR(int x, int y, bool left) {
   bool dug = false;
+    if (left) {
+        if (this->inBoulderArea(x, y)) {
+            return;
+        }
+    }
+    if (!left) {
+        if (this->inBoulderArea(x - 3, y)) {
+            return;
+        }
+    }
   for (int i = 0; i < 4; i++) {
     if (this->dirtExistsVisible(x, y + i)) { // ensure there's dirt there
-      field[x][y + i]->setVisible(false);
-      dug = true;
+          field[x][y + i]->setVisible(false);
+          dug = true;
     }
     if (dug) {
-      playSound(SOUND_DIG);
+        playSound(SOUND_DIG);
     }
   }
 }
 
-void StudentWorld::digDirtUD(int x, int y) {
+void StudentWorld::digDirtUD(int x, int y, bool down) {
   bool dug = false;
+    if (down) {
+        if (this->inBoulderArea(x, y)) {
+            return;
+        }
+    }
+    if (!down) {
+        if (this->inBoulderArea(x, y - 3)) {
+            return;
+        }
+    }
   for (int i = 0; i < 4; i++) {
     if (this->dirtExistsVisible(x + i, y)) { // ensure dirt is there
       field[x + i][y]->setVisible(false);
@@ -196,8 +216,7 @@ bool StudentWorld::positionClearLR(int x, int y) {
   // do for loop to check the entire position to prevent walking into dirt
   for (int i = 0; i < 4; i++) {
     if (x < 0 || x > 63 || y > 60 || y < 0 ||
-        (field[x][y + i] != nullptr &&
-         field[x][y + i]->isVisible())) { // isVisible?
+        (field[x][y + i] != nullptr && field[x][y + i]->isVisible())) { // isVisible?
       return false;
     }
   }
@@ -224,6 +243,10 @@ int StudentWorld::inTMy(int y) {
 
 void StudentWorld::setEarthDiscovered(int x, int y) {
   field[x][y]->setDiscovered(true);
+}
+
+bool StudentWorld::getEarthDiscovered(int x, int y) {
+  return field[x][y]->getDiscovered();
 }
 
 bool StudentWorld::dirtBelow(int x, int y) {
@@ -282,10 +305,87 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
     if ((actor->getID() == TID_PROTESTER) ||
         (actor->getID() == TID_HARD_CORE_PROTESTER)) {
       if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
-        // actor->setLeaveStatus(true);
+          this->playSound(SOUND_SONAR);
+        dynamic_cast<Protester*>(actor)->setLeaveStatus(true);
+        // dynamic_cast<Protester*>(actor)->setLeave();
+        this->findPath(actor->getX(), actor->getY(), dynamic_cast<Protester*>(actor));
       }
     }
   }
+}
+
+bool StudentWorld::inBoulderArea(int x, int y) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            for (auto actor : this->actors) {
+                if (actor->getID() == TID_BOULDER) {
+                    if ((x + i >= actor->getX() && x + i < actor->getX() + 4) && (y + j >= actor->getY() && y + j < actor->getY() + 4))  {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool StudentWorld::checkMarked(int x, int y) {
+    std::vector<Protester::coord>::iterator it;
+    for (it = m_marked.begin(); it < m_marked.end(); it++) {
+        if (it->x == x && it->y == y) {
+            return true;       // in m_visited already
+        }
+    }
+    return false;
+}
+
+std::vector<Protester::coord> *StudentWorld::getMarked() { return &m_marked; }
+
+bool StudentWorld::findPath(int x, int y, Protester* p) {
+    Protester::coord curr;
+    if (x == 60 && y == 60) {
+        p->getPathOut()->push(curr);
+        // p->setPathOut(*p->getPathOut());
+        return true;
+    }
+    else {
+        curr.x = x;
+        curr.y = y;
+        this->getMarked()->push_back(curr);
+        
+        if (y <= 60) {
+            if (this->positionClearUD(x, y + 4) && !this->checkMarked(x, y + 1))  {
+                if (findPath(x, y + 1, p)) {
+                    return true;
+                }
+            }
+        }
+        if (x <= 60) {
+            if (this->positionClearLR(x + 4, y) && !this->checkMarked(x + 1, y)) {
+                if (findPath(x + 1, y, p)) {
+                    return true;
+                }
+            }
+        }
+        if (x >= 0) {
+            if (this->positionClearLR(x - 1, y) && !this->checkMarked(x - 1, y)) {
+                if (findPath(x - 1, y, p)) {
+                    return true;
+                }
+            }
+        }
+        if (y >= 0) {
+            if (this->positionClearUD(x, y - 1) && !this->checkMarked(x, y - 1)) {
+                if (findPath(x, y - 1, p)) {
+                    return true;
+                }
+            }
+        }
+        
+        p->getPathOut()->push(curr);
+        // p->setPathOut(*p->getPathOut());
+        return false;
+    }
 }
 
 StudentWorld::~StudentWorld() {}

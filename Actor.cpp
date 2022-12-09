@@ -108,7 +108,7 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_LEFT:
       if (this->getDirection() == left) { // if already facing in that direction
         if (this->getX() != 0) {          // if not on edge
-          this->getWorld()->digDirtLR(this->getX() - 1, this->getY());
+          this->getWorld()->digDirtLR(this->getX() - 1, this->getY(), true);
           if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX() - 1, this->getY());
           }
@@ -120,7 +120,7 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_RIGHT:
       if (this->getDirection() == right) {
         if (this->getX() != 60) {
-          this->getWorld()->digDirtLR(this->getX() + 4, this->getY());
+          this->getWorld()->digDirtLR(this->getX() + 4, this->getY(), false);
           if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX() + 1, this->getY());
           }
@@ -132,7 +132,7 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_DOWN:
       if (this->getDirection() == down) {
         if (this->getY() != 0) {
-          this->getWorld()->digDirtUD(this->getX(), this->getY() - 1);
+          this->getWorld()->digDirtUD(this->getX(), this->getY() - 1, true);
           if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX(), this->getY() - 1);
           }
@@ -145,7 +145,7 @@ void Tunnelman::doSomething() {
       if (this->getDirection() == up) {
         if (this->getY() != 60) {
           if (this->getY() < 60) { // padding since tunnel man takes a 4x4
-            this->getWorld()->digDirtUD(this->getX(), this->getY() + 4);
+            this->getWorld()->digDirtUD(this->getX(), this->getY() + 4, false);
           }
           if (!this->getWorld()->boulderObstructs(this)) {
             this->moveTo(this->getX(), this->getY() + 1);
@@ -157,7 +157,7 @@ void Tunnelman::doSomething() {
       break;
       // =================================================================================================
     case KEY_PRESS_ESCAPE:
-      // this->setAlive(false);
+      this->setAlive(false);
       break;
     case KEY_PRESS_TAB:
       break;
@@ -243,7 +243,122 @@ int Protester::getLastPerpendicular() { return m_lastPerpendicular; }
 // =================================================================================================
 std::queue<Protester::coord> *Protester::getLocations() { return &m_locations; }
 
+void Protester::setLocations(std::queue<coord> &location) { m_locations = location; }
+
 std::queue<Protester::coord> *Protester::getPathOut() { return &m_pathOut; }
+
+void Protester::setPathOut(std::queue<coord> &path) { m_pathOut = path; }
+
+std::vector<Protester::coord> *Protester::getVisited() { return &m_visited; }
+
+void Protester::setVisited(std::vector<coord> &visited) { m_visited = visited; }
+
+//bool Protester::compareCoord (const coord &member, const coord &visited) {
+//    return ((member.x == visited.x) && (member.y == visited.y));
+//}
+
+bool Protester::checkVisited(int x, int y) {
+    std::vector<coord>::iterator it;
+    for (it = m_visited.begin(); it < m_visited.end(); it++) {
+        if (it->x == x && it->y == y) {
+            return true;       // in m_visited already
+        }
+    }
+    return false;
+}
+
+// =================================================================================================
+/*
+void Protester::setLeave() {
+    //
+    std::queue<coord> path;
+    coord curr;
+    for (int i = this->getX(); i <= 60; i++) {
+        curr.x = i;
+        curr.y = this->getY();
+        path.push(curr);
+    }
+    for (int j = this->getY(); j <= 60; j++) {
+        curr.x = 60;
+        curr.y = j;
+        path.push(curr);
+    }
+    this->setPathOut(path);
+    //
+    //
+    std::queue<coord> loc;
+    std::queue<coord> path;
+    std::vector<coord>* vis;
+    coord curr;
+    coord start;
+    start.x = this->getX();
+    start.y = this->getY();
+    this->getLocations()->push(start);
+    //loc.push(start);     // pushing the starting point
+    // this->getWorld()->setEarthDiscovered(this->getX(), this->getY());       // set start as discovered
+    this->getVisited()->push_back(start);
+    //while (!loc.empty()) {
+    while (!this->getLocations()->empty()) {
+        this->getWorld()->playSound(SOUND_FOUND_OIL);
+        coord temp;
+        curr = this->getLocations()->front();
+        this->getLocations()->pop();
+        this->moveTo(curr.x, curr.y);           // temp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        path.push(curr);    // add onto the path queue
+        this->setPathOut(path);
+        if (curr.x == 60 && curr.y == 60) {
+            this->setPathOut(path);
+            return; // done with path
+        }
+        if (this->getWorld()->positionClearLR(curr.x - 1, curr.y) && !this->getWorld()->inBoulderArea(curr.x - 1, curr.y)) {
+            if (!checkVisited(curr.x - 1, curr.y)) {
+                temp.x = curr.x - 1;
+                temp.y = curr.y;
+                this->getLocations()->push(temp);
+                vis = this->getVisited();
+                vis->push_back(temp);
+                this->setVisited(*vis);
+            }
+        }
+        if (this->getWorld()->positionClearLR(curr.x + 4,curr.y) && !this->getWorld()->inBoulderArea(curr.x + 4, curr.y)) {
+            if (!checkVisited(curr.x + 1, curr.y)) {
+                temp.x = curr.x + 1;
+                temp.y = curr.y;
+                this->getLocations()->push(temp);
+                vis = this->getVisited();
+                vis->push_back(temp);
+                this->setVisited(*vis);
+            }
+        }
+        if (this->getWorld()->positionClearUD(curr.x, curr.y + 4) && !this->getWorld()->inBoulderArea(curr.x, curr.y + 4)) {
+            if (!checkVisited(curr.x, curr.y + 1)) {
+                temp.x = curr.x;
+                temp.y = curr.y + 1;
+                this->getLocations()->push(temp);
+                vis = this->getVisited();
+                vis->push_back(temp);
+                this->setVisited(*vis);
+            }
+        }
+        if (this->getWorld()->positionClearUD(curr.x, curr.y - 1) && !this->getWorld()->inBoulderArea(curr.x, curr.y - 1)) {
+            // if (!this->getWorld()->getEarthDiscovered(curr.x, curr.y - 1)) {
+            if (!checkVisited(curr.x, curr.y - 1)) {
+                temp.x = curr.x;
+                temp.y = curr.y - 1;
+                // loc.push(temp);
+                // this->setLocations(loc);
+                this->getLocations()->push(temp);
+                // this->getWorld()->setEarthDiscovered(curr.x, curr.y - 1);
+                // this->getVisited()->push_back(temp);
+                vis = this->getVisited();
+                vis->push_back(temp);
+                this->setVisited(*vis);
+            }
+        }
+    }
+    //
+}
+*/
 // =================================================================================================
 
 double Protester::getUnitsFromTM() {
@@ -477,22 +592,33 @@ void RegularProtester::doSomething() {
   if (this->getLeaveStatus() == true) {
     if (this->getX() == 60 && this->getY() == 60) {
       this->setAlive(false); // set to dead
-    } else {
-      // algorithm to move the protester 1 step towards the exit & return
-      //            std::queue<coord>* locPtr = getLocations();
-      //            coord curr;
-      //            curr.x = this->getX();
-      //            curr.y = this->getY();
-      //            locPtr->push(curr);
-      //            this->getWorld()->setEarthDiscovered(this->getX(),
-      //            this->getY());
-      //
-      //            if (locPtr->empty()) {
-      //
-      //            }
-      //
-      // add all values to the locations queue
-      // pop values from the location and add to the path queue?
+    }
+    else {
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        std::queue<coord>* where = this->getPathOut();
+        coord place;
+        if (!this->getPathOut()->empty()) {          // why is it empty???
+            place = this->getPathOut()->front();
+            if (place.x > this->getX()) {
+                this->setDirection(right);
+            }
+            else if (place.x < this->getX()) {
+                this->setDirection(left);
+            }
+            else if (place.y > this->getY()) {
+                this->setDirection(up);
+            }
+            else if (place.y > this->getY()) {
+                this->setDirection(down);
+            }
+            this->moveTo(place.x, place.y);
+            this->getPathOut()->pop();
+            this->setPathOut(*where);
+            return;
+        }
+        this->moveTo(0, 0);                                         // temp xxxxxxxxxxxxxxxx
+        return;
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
   }
   // 4)
@@ -604,50 +730,61 @@ void RegularProtester::doSomething() {
   Direction currDir = this->getDirection();
   switch (currDir) {
   case up:
-    if (this->getY() != 60 &&
-        this->getWorld()->positionClearUD(this->getX(), this->getY() + 4)) {
-      if (!this->getFacingTM() ||
-          this->checkTMUD(this->getX(), this->getY() + 4,
-                          up)) { // not facing TM or facing, but checked = true
-        if (this->getUnitsFromTM() >= 4) {
-          this->moveTo(this->getX(), this->getY() + 1);
-        }
+    if (this->getY() != 60 && this->getWorld()->positionClearUD(this->getX(), this->getY() + 4)) {
+      if (!this->getFacingTM() || this->checkTMUD(this->getX(), this->getY() + 4, up)) { // not facing TM or facing, checked = true
+          if (this->getUnitsFromTM() >= 4) {
+              if (!this->getWorld()->inBoulderArea(this->getX(), this->getY() + 1)) {
+                  this->moveTo(this->getX(), this->getY() + 1);
+              }
+              else {
+                  this->setMovesCurrDir(0);
+              }
+          }
       }
       return;
     }
     break;
   case down:
-    if (this->getY() != 0 &&
-        this->getWorld()->positionClearUD(this->getX(), this->getY() - 1)) {
-      if (!this->getFacingTM() ||
-          this->checkTMUD(this->getX(), this->getY() - 4, down)) {
-        if (this->getUnitsFromTM() >= 4) {
-          this->moveTo(this->getX(), this->getY() - 1);
-        }
+    if (this->getY() != 0 && this->getWorld()->positionClearUD(this->getX(), this->getY() - 1)) {
+      if (!this->getFacingTM() || this->checkTMUD(this->getX(), this->getY() - 4, down)) {
+          if (this->getUnitsFromTM() >= 4) {
+              if (!this->getWorld()->inBoulderArea(this->getX(), this->getY() - 1)) {
+                  this->moveTo(this->getX(), this->getY() - 1);
+              }
+              else {
+                  this->setMovesCurrDir(0);
+              }
+          }
       }
       return;
     }
     break;
   case right:
-    if (this->getX() != 60 &&
-        this->getWorld()->positionClearLR(this->getX() + 4, this->getY())) {
-      if (!this->getFacingTM() ||
-          this->checkTMLR(this->getX() + 4, this->getY())) {
-        if (this->getUnitsFromTM() >= 4) {
-          this->moveTo(this->getX() + 1, this->getY());
-        }
+    if (this->getX() != 60 && this->getWorld()->positionClearLR(this->getX() + 4, this->getY())) {
+      if (!this->getFacingTM() || this->checkTMLR(this->getX() + 4, this->getY())) {
+          if (this->getUnitsFromTM() >= 4) {
+              if (!this->getWorld()->inBoulderArea(this->getX() + 1, this->getY())) {
+                  this->moveTo(this->getX() + 1, this->getY());
+              }
+              else {
+                  this->setMovesCurrDir(0);
+              }
+          }
       }
       return;
     }
     break;
   case left:
-    if (this->getX() != 0 &&
-        this->getWorld()->positionClearLR(this->getX() - 1, this->getY())) {
-      if (!this->getFacingTM() ||
-          this->checkTMLR(this->getX() - 4, this->getY())) {
-        if (this->getUnitsFromTM() >= 4) {
-          this->moveTo(this->getX() - 1, this->getY());
-        }
+    if (this->getX() != 0 && this->getWorld()->positionClearLR(this->getX() - 1, this->getY())) {
+      if (!this->getFacingTM() || this->checkTMLR(this->getX() - 4, this->getY())) {
+          if (this->getUnitsFromTM() >= 4) {
+              if (!this->getWorld()->inBoulderArea(this->getX() - 1, this->getY())) {
+                  this->moveTo(this->getX() - 1, this->getY());
+              }
+              else {
+                  this->setMovesCurrDir(0);
+              }
+          }
       }
       return;
     }
