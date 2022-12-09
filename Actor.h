@@ -223,6 +223,7 @@ private:
   int ticks_existed = 0;
 };
 
+// TODO: everythin in squirt class
 class Squirt : public Actor {
 public:
   Squirt();
