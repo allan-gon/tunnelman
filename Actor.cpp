@@ -162,7 +162,30 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_SPACE:
       if (this->getWaterUnits() > 0) {
         this->decWater();
-        this->getWorld()->getActors().push_back(std::move(new Squirt(this)));
+
+        Direction dir;
+        int x, y;
+
+        if (this->getDirection() == up) {
+          x = this->getX();
+          y = this->getY() + 4;
+          dir = up;
+        } else if (this->getDirection() == down) {
+          x = this->getX();
+          y = this->getY() - 4;
+          dir = down;
+        } else if (this->getDirection() == left) {
+          x = this->getX() - 4;
+          y = this->getY();
+          dir = left;
+        } else if (this->getDirection() == right) {
+          x = this->getX() + 4;
+          y = this->getY();
+          dir = right;
+        }
+
+        this->getWorld()->getActors().push_back(
+            std::move(new Squirt(x, y, dir)));
       }
       break;
       // =================================================================================================
@@ -746,9 +769,8 @@ StudentWorld *WaterPool::getWorld() { return this->m_world; }
 
 WaterPool::~WaterPool() {}
 
-Squirt::Squirt(Tunnelman *tm)
-    : Actor(true, TID_WATER_SPURT, tm->getX() + 4, tm->getY(),
-            tm->getDirection(), 1) {}
+Squirt::Squirt(int x, int y, Direction dir)
+    : Actor(true, TID_WATER_SPURT, x, y, dir, 1) {}
 
 void Squirt::doSomething() {}
 

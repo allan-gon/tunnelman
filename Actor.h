@@ -226,7 +226,7 @@ private:
 // TODO: everythin in squirt class
 class Squirt : public Actor {
 public:
-  Squirt(Tunnelman *tm);
+  Squirt(int x, int y, Direction dir);
   ~Squirt();
 
   void doSomething();
