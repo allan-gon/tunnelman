@@ -161,6 +161,7 @@ int StudentWorld::move() {
 
   if (this->player->getAlive()) {  // alive
     if (!this->num_barrels_left) { // finished level
+      this->increaseScore(1000);
       this->playSound(SOUND_FINISHED_LEVEL);
       return GWSTATUS_FINISHED_LEVEL;
     }
@@ -314,6 +315,7 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
     if ((actor->getID() == TID_PROTESTER) ||
         (actor->getID() == TID_HARD_CORE_PROTESTER)) {
       if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
+        this->increaseScore(500);
         // actor->setLeaveStatus(true);
       }
     }

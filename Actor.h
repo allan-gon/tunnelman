@@ -226,7 +226,16 @@ private:
 // TODO: everythin in squirt class
 class Squirt : public Actor {
 public:
-  Squirt();
+  Squirt(Tunnelman *tm);
+  ~Squirt();
+
+  void doSomething();
+
+  int getTicks();
+  void incTicks();
+
+private:
+  int ticks_alive = 0;
 };
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);

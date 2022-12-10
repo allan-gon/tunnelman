@@ -155,13 +155,14 @@ void Tunnelman::doSomething() {
       break;
       // =================================================================================================
     case KEY_PRESS_ESCAPE:
-      // this->setAlive(false);
+      this->setAlive(false);
       break;
     case KEY_PRESS_TAB:
       break;
     case KEY_PRESS_SPACE:
       if (this->getWaterUnits() > 0) {
         this->decWater();
+        this->getWorld()->getActors().push_back(std::move(new Squirt(this)));
       }
       break;
       // =================================================================================================
@@ -741,6 +742,18 @@ void WaterPool::doSomething() {
   }
 }
 
+StudentWorld *WaterPool::getWorld() { return this->m_world; }
+
 WaterPool::~WaterPool() {}
 
-StudentWorld *WaterPool::getWorld() { return this->m_world; }
+Squirt::Squirt(Tunnelman *tm)
+    : Actor(true, TID_WATER_SPURT, tm->getX() + 4, tm->getY(),
+            tm->getDirection(), 1) {}
+
+void Squirt::doSomething() {}
+
+int Squirt::getTicks() { return this->ticks_alive; }
+
+void Squirt::incTicks() { this->ticks_alive++; }
+
+Squirt::~Squirt() {}
