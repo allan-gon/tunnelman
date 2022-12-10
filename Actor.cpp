@@ -827,3 +827,4 @@ void Squirt::incTicks() { this->ticks_alive++; }
 StudentWorld *Squirt::getWorld() { return this->m_world; }
 
 Squirt::~Squirt() {}
+ 
