@@ -60,6 +60,7 @@ public:
 
   // helper for squirt
   bool squirtAnnoyActors(int x, int y);
+  bool dirtObstructs(Actor *object);
 
   ~StudentWorld();
 

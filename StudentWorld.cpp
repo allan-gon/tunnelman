@@ -401,4 +401,32 @@ bool StudentWorld::squirtAnnoyActors(int x, int y) {
   return false;
 }
 
+bool StudentWorld::dirtObstructs(Actor *object) {
+  int dir_modifier[4] = {4, -4, -4, 4};
+  bool is_vertical = false;
+  if ((object->getDirection() == 1) || (object->getDirection() == 2)) {
+    is_vertical = true;
+  }
+
+  if (is_vertical) {
+    for (int i = 0; i < 4; i++) {
+
+      if (this->dirtExistsVisible(
+              object->getX() + i,
+              object->getY() + dir_modifier[object->getDirection() - 1])) {
+        return true;
+      }
+    }
+  } else {
+    for (int i = 0; i < 4; i++) {
+      if (this->dirtExistsVisible(object->getX() +
+                                      dir_modifier[object->getDirection() - 1],
+                                  object->getY() + i))
+        return true;
+    }
+  }
+
+  return false;
+}
+
 StudentWorld::~StudentWorld() {}

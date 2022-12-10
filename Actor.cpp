@@ -180,6 +180,9 @@ void Tunnelman::doSomething() {
           break;
         } else if (this->getY() == 0 && this->getDirection() == down) {
           break;
+        } else if (this->getWorld()->dirtObstructs(this) ||
+                   this->getWorld()->boulderObstructs(this)) {
+          break;
         } else {
           if (this->getDirection() == up) {
             x = this->getX();
@@ -794,6 +797,9 @@ void Squirt::doSomething() {
       this->setAlive(false);
     } else if (this->getWorld()->squirtAnnoyActors(this->getX(),
                                                    this->getY())) {
+      this->setAlive(false);
+    } else if (this->getWorld()->boulderObstructs(this) ||
+               this->getWorld()->dirtObstructs(this)) {
       this->setAlive(false);
     } else {
       int x_mod = 0;
