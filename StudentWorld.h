@@ -54,9 +54,12 @@ public:
   int getTicks();
   void trySpawnSonarWater();
 
-  // helper functions for water
+  // helper functions for waterpool
   void placeWater();
   bool isClear4x4(int x, int y);
+
+  // helper for squirt
+  bool squirtAnnoyActors(int x, int y);
 
   ~StudentWorld();
 

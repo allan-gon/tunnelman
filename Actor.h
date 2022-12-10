@@ -64,6 +64,7 @@ public:
   StudentWorld *getWorld();
 
   virtual void setHitPoints(int hitPoints);
+  void takeDamage(int amount);
   int getHitPoints();
   virtual void doSomething() = 0;
 
@@ -226,16 +227,18 @@ private:
 // TODO: everythin in squirt class
 class Squirt : public Actor {
 public:
-  Squirt(int x, int y, Direction dir);
+  Squirt(int x, int y, Direction dir, StudentWorld &world);
   ~Squirt();
 
   void doSomething();
 
+  StudentWorld *getWorld();
   int getTicks();
   void incTicks();
 
 private:
   int ticks_alive = 0;
+  StudentWorld *m_world;
 };
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);

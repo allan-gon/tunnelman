@@ -74,6 +74,13 @@ StudentWorld *Entity::getWorld() { return m_game; }
 
 void Entity::doSomething() { return; }
 
+void Entity::takeDamage(int amount) {
+  this->m_hitPoints = this->m_hitPoints - amount;
+  if (this->m_hitPoints <= 0) {
+    this->setAlive(false);
+  }
+}
+
 Entity::~Entity() {}
 
 // added the StudentWorld address & initializes the member variable
@@ -165,27 +172,36 @@ void Tunnelman::doSomething() {
 
         Direction dir;
         int x, y;
+        if (this->getX() == 60 && this->getDirection() == right) {
+          break;
+        } else if (this->getX() == 0 && this->getDirection() == left) {
+          break;
+        } else if (this->getY() == 60 && this->getDirection() == up) {
+          break;
+        } else if (this->getY() == 0 && this->getDirection() == down) {
+          break;
+        } else {
+          if (this->getDirection() == up) {
+            x = this->getX();
+            y = this->getY() + 4;
+            dir = up;
+          } else if (this->getDirection() == down) {
+            x = this->getX();
+            y = this->getY() - 4;
+            dir = down;
+          } else if (this->getDirection() == left) {
+            x = this->getX() - 4;
+            y = this->getY();
+            dir = left;
+          } else if (this->getDirection() == right) {
+            x = this->getX() + 4;
+            y = this->getY();
+            dir = right;
+          }
 
-        if (this->getDirection() == up) {
-          x = this->getX();
-          y = this->getY() + 4;
-          dir = up;
-        } else if (this->getDirection() == down) {
-          x = this->getX();
-          y = this->getY() - 4;
-          dir = down;
-        } else if (this->getDirection() == left) {
-          x = this->getX() - 4;
-          y = this->getY();
-          dir = left;
-        } else if (this->getDirection() == right) {
-          x = this->getX() + 4;
-          y = this->getY();
-          dir = right;
+          this->getWorld()->getActors().push_back(
+              std::move(new Squirt(x, y, dir, *this->getWorld())));
         }
-
-        this->getWorld()->getActors().push_back(
-            std::move(new Squirt(x, y, dir)));
       }
       break;
       // =================================================================================================
@@ -769,13 +785,39 @@ StudentWorld *WaterPool::getWorld() { return this->m_world; }
 
 WaterPool::~WaterPool() {}
 
-Squirt::Squirt(int x, int y, Direction dir)
-    : Actor(true, TID_WATER_SPURT, x, y, dir, 1) {}
+Squirt::Squirt(int x, int y, Direction dir, StudentWorld &world)
+    : Actor(true, TID_WATER_SPURT, x, y, dir, 1), m_world(&world) {}
 
-void Squirt::doSomething() {}
+void Squirt::doSomething() {
+  if (this->getAlive()) {
+    if (this->getTicks() == 4) {
+      this->setAlive(false);
+    } else if (this->getWorld()->squirtAnnoyActors(this->getX(),
+                                                   this->getY())) {
+      this->setAlive(false);
+    } else {
+      int x_mod = 0;
+      int y_mod = 0;
+      if (this->getDirection() == up) {
+        y_mod++;
+      } else if (this->getDirection() == down) {
+        y_mod--;
+      } else if (this->getDirection() == right) {
+        x_mod++;
+      } else if (this->getDirection() == left) {
+        x_mod--;
+      }
+
+      this->moveTo(this->getX() + x_mod, this->getY() + y_mod);
+    }
+    this->incTicks();
+  }
+}
 
 int Squirt::getTicks() { return this->ticks_alive; }
 
 void Squirt::incTicks() { this->ticks_alive++; }
+
+StudentWorld *Squirt::getWorld() { return this->m_world; }
 
 Squirt::~Squirt() {}

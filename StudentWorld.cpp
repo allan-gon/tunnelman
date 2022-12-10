@@ -388,4 +388,17 @@ void StudentWorld::placeWater() {
   }
 }
 
+bool StudentWorld::squirtAnnoyActors(int x, int y) {
+  for (auto actor : this->actors) {
+    if (actor->getID() == TID_PROTESTER ||
+        actor->getID() == TID_HARD_CORE_PROTESTER) {
+      if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
+        dynamic_cast<Entity *>(actor)->takeDamage(2);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 StudentWorld::~StudentWorld() {}
