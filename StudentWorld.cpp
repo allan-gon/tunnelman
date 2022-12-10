@@ -358,60 +358,60 @@ bool StudentWorld::findPath(int x, int y, Protester *p) {
   p->getPathOut()->push(curr);
 
   if (x == 60 && y == 60) { //  if at end
-    // p->getPathOut()->pop(); // removed the 1st pos as it's garbage
+    p->getPathOut()->pop(); // removed the 1st pos as it's garbage
 
-    ofstream file("test.txt", std::ios::app);
-    queue<Protester::coord> other;
+    // ofstream file("test.txt", std::ios::app);
+    // queue<Protester::coord> other;
 
-    while (!p->getPathOut()->empty()) {
-      p->getPathOut()->pop();
+    // while (!p->getPathOut()->empty()) {
+    //   p->getPathOut()->pop();
 
-      curr = p->getPathOut()->front();
+    //   curr = p->getPathOut()->front();
 
-      file << curr.x << ',' << curr.y << "\n";
+    //   file << curr.x << ',' << curr.y << "\n";
 
-      other.push(curr);
-    }
+    //   other.push(curr);
+    // }
 
-    while (!other.empty()) {
-      curr = other.front();
-      other.pop();
+    // while (!other.empty()) {
+    //   curr = other.front();
+    //   other.pop();
 
-      p->getPathOut()->push(curr);
-    }
+    //   p->getPathOut()->push(curr);
+    // }
 
     return true;
   } else { // not found way out
            // mark position
 
     if (y <= 60) {
-      std::cout << "Up: " << boolalpha << this->positionClearUD(x, y + 4) <<
-      ' '
-                << !this->checkMarked(x, y + 1) << std::endl;
+      // std::cout << "Up: " << boolalpha << this->positionClearUD(x, y + 4) <<
+      // ' '
+      //           << !this->checkMarked(x, y + 1) << std::endl;
       if (this->positionClearUD(x, y + 4) && !this->checkMarked(x, y + 1) &&
           findPath(x, y + 1, p)) {
         return true;
       }
     }
     if (x <= 60) {
-      std::cout << "Right: " << boolalpha << this->positionClearLR(x + 4, y)
-                << ' ' << !this->checkMarked(x + 1, y) << std::endl;
+      // std::cout << "Right: " << boolalpha << this->positionClearLR(x + 4, y)
+      //           << ' ' << !this->checkMarked(x + 1, y) << std::endl;
       if (this->positionClearLR(x + 4, y) && !this->checkMarked(x + 1, y) &&
           findPath(x + 1, y, p)) {
         return true;
       }
     }
     if (x >= 0) {
-      std::cout << "Left: " << boolalpha << this->positionClearLR(x - 1, y)
-                << ' ' << !this->checkMarked(x - 1, y) << std::endl;
+      // std::cout << "Left: " << boolalpha << this->positionClearLR(x - 1, y)
+      //           << ' ' << !this->checkMarked(x - 1, y) << std::endl;
       if (this->positionClearLR(x - 1, y) && !this->checkMarked(x - 1, y) &&
           findPath(x - 1, y, p)) {
         return true;
       }
     }
     if (y >= 0) {
-      std::cout << "Down: " << boolalpha << this->positionClearUD(x, y - 1)
-                << ' ' << !this->checkMarked(x, y - 1) << std::endl;
+      // std::cout << "Down: " << boolalpha << this->positionClearUD(x, y - 1)
+      //           << ' ' << !this->checkMarked(x, y - 1) << std::endl;
       if (this->positionClearUD(x, y - 1) && !this->checkMarked(x, y - 1) &&
           findPath(x, y - 1, p)) {
         return true;
@@ -422,8 +422,8 @@ bool StudentWorld::findPath(int x, int y, Protester *p) {
     // but other dead ends are?
     // causes spazzing
 
-    std::cout << "Can't go LRUD @: " << p->getPathOut()->front().x << ","
-              << p->getPathOut()->front().y << std::endl;
+    // std::cout << "Can't go LRUD @: " << p->getPathOut()->front().x << ","
+    //           << p->getPathOut()->front().y << std::endl;
     p->getPathOut()->pop();
     return false;
   }
