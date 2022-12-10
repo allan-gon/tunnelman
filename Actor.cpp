@@ -577,30 +577,23 @@ RegularProtester::RegularProtester(StudentWorld &game, Tunnelman &TM)
 }
 
 void RegularProtester::doSomething() {
-  // 1)
-  if (this->getAlive() == false) {
-    return;
-  }
-  // 2)
-  if (this->getRestState() == true) {
-    this->decRestTickCount();
-    return;
-  } else {
-    this->setRestTickCount(this->getWaitTicks());
-    this->setRestState(true);
-  }
-  // 3)
-  if (this->getLeaveStatus() == true) {
-    if (this->getX() == 60 && this->getY() == 60) {
-      this->setAlive(false); // set to dead
+
+  if (this->getAlive()) {
+    if (this->getRestState()) {
+      this->decRestTickCount();
+      return;
     } else {
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      // std::queue<coord>* where = this->getPathOut();
+      this->setRestTickCount(this->getWaitTicks());
+      this->setRestState(true);
+    }
+  }
+
+  if (this->getLeaveStatus()) {
+    if (this->getX() == 60 && this->getY() == 60) {
+      this->setAlive(false);
+    } else {
       coord place;
-      std::cout << this->getX() << ',' << this->getY() << std::endl;
-      std::cout << place.x << ',' << place.y << std::endl;
-      std::cout << "-------------------------\n";
-      if (!this->getPathOut()->empty()) { // why is it empty???
+      if (!this->getPathOut()->empty()) {
         place = this->getPathOut()->front();
         if (place.x > this->getX()) {
           this->setDirection(right);
@@ -613,14 +606,11 @@ void RegularProtester::doSomething() {
         }
         this->moveTo(place.x, place.y);
         this->getPathOut()->pop();
-        // this->setPathOut(*where);
-        return;
       }
-      this->moveTo(0, 0); // temp xxxxxxxxxxxxxxxx
-      return;
-      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
+    return;
   }
+
   // 4)
   bool yelled = false;
   if (this->getUnitsFromTM() <= 4 && this->getFacingTM()) {

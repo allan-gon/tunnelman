@@ -140,6 +140,7 @@ int StudentWorld::move() {
 }
 
 void StudentWorld::cleanUp() {
+  std::cout << "----------------------\n";
   // frees memory from tunnelman + fix dangling pointer
   delete this->player;
   this->player = nullptr;
@@ -213,6 +214,8 @@ void StudentWorld::digDirtUD(int x, int y, bool down) {
 }
 
 bool StudentWorld::positionClearLR(int x, int y) {
+  // passed in: x + 4, y
+
   // do for loop to check the entire position to prevent walking into dirt
   for (int i = 0; i < 4; i++) {
     if (x < 0 || x > 63 || y > 60 || y < 0 ||
@@ -226,7 +229,7 @@ bool StudentWorld::positionClearLR(int x, int y) {
 
 bool StudentWorld::positionClearUD(int x, int y) {
   for (int i = 0; i < 4; i++) {
-    if (y > 60 || y < 0 || x > 60 || x < 0 ||
+    if ((y > 63) || (y < 0) || (x > 63) || (x < 0) ||
         (field[x + i][y] != nullptr && field[x + i][y]->isVisible())) {
       return false;
     }
@@ -305,12 +308,17 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
     // only other actors that can be annoyed?
     if ((actor->getID() == TID_PROTESTER) ||
         (actor->getID() == TID_HARD_CORE_PROTESTER)) {
-      if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
-        this->playSound(SOUND_SONAR);
-        dynamic_cast<Protester *>(actor)->setLeaveStatus(true);
-        // dynamic_cast<Protester*>(actor)->setLeave();
-        this->findPath(actor->getX(), actor->getY(),
-                       dynamic_cast<Protester *>(actor));
+      if (!dynamic_cast<Protester *>(actor)->getLeaveStatus()) {
+        if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
+          this->playSound(SOUND_SONAR);
+          std::cout << "Pos hit: " << actor->getX() << ',' << actor->getY()
+                    << std::endl;
+          dynamic_cast<Protester *>(actor)->setLeaveStatus(true);
+          // dynamic_cast<Protester*>(actor)->setLeave();
+          this->getMarked()->clear();
+          this->findPath(actor->getX(), actor->getY(),
+                         dynamic_cast<Protester *>(actor));
+        }
       }
     }
   }
@@ -335,7 +343,7 @@ bool StudentWorld::inBoulderArea(int x, int y) {
 bool StudentWorld::checkMarked(int x, int y) {
   std::vector<Protester::coord>::iterator it;
   for (it = m_marked.begin(); it < m_marked.end(); it++) {
-    if (it->x == x && it->y == y) {
+    if ((it->x == x) && (it->y == y)) {
       return true; // in m_visited already
     }
   }
@@ -344,50 +352,79 @@ bool StudentWorld::checkMarked(int x, int y) {
 
 std::vector<Protester::coord> *StudentWorld::getMarked() { return &m_marked; }
 
-// consider void
 bool StudentWorld::findPath(int x, int y, Protester *p) {
-  Protester::coord curr;
+  Protester::coord curr(x, y);
+  this->getMarked()->push_back(curr);
+  p->getPathOut()->push(curr);
+
   if (x == 60 && y == 60) { //  if at end
-    p->getPathOut()->push(curr);
-    // p->setPathOut(*p->getPathOut());
+    // p->getPathOut()->pop(); // removed the 1st pos as it's garbage
+
+    ofstream file("test.txt", std::ios::app);
+    queue<Protester::coord> other;
+
+    while (!p->getPathOut()->empty()) {
+      p->getPathOut()->pop();
+
+      curr = p->getPathOut()->front();
+
+      file << curr.x << ',' << curr.y << "\n";
+
+      other.push(curr);
+    }
+
+    while (!other.empty()) {
+      curr = other.front();
+      other.pop();
+
+      p->getPathOut()->push(curr);
+    }
+
     return true;
   } else { // not found way out
-  // save current position
-    curr.x = x;
-    curr.y = y;
-    this->getMarked()->push_back(curr);
+           // mark position
 
     if (y <= 60) {
-      if (this->positionClearUD(x, y + 4) && !this->checkMarked(x, y + 1)) {
-        if (findPath(x, y + 1, p)) {
-          return true;
-        }
+      std::cout << "Up: " << boolalpha << this->positionClearUD(x, y + 4) <<
+      ' '
+                << !this->checkMarked(x, y + 1) << std::endl;
+      if (this->positionClearUD(x, y + 4) && !this->checkMarked(x, y + 1) &&
+          findPath(x, y + 1, p)) {
+        return true;
       }
     }
     if (x <= 60) {
-      if (this->positionClearLR(x + 4, y) && !this->checkMarked(x + 1, y)) {
-        if (findPath(x + 1, y, p)) {
-          return true;
-        }
+      std::cout << "Right: " << boolalpha << this->positionClearLR(x + 4, y)
+                << ' ' << !this->checkMarked(x + 1, y) << std::endl;
+      if (this->positionClearLR(x + 4, y) && !this->checkMarked(x + 1, y) &&
+          findPath(x + 1, y, p)) {
+        return true;
       }
     }
     if (x >= 0) {
-      if (this->positionClearLR(x - 1, y) && !this->checkMarked(x - 1, y)) {
-        if (findPath(x - 1, y, p)) {
-          return true;
-        }
+      std::cout << "Left: " << boolalpha << this->positionClearLR(x - 1, y)
+                << ' ' << !this->checkMarked(x - 1, y) << std::endl;
+      if (this->positionClearLR(x - 1, y) && !this->checkMarked(x - 1, y) &&
+          findPath(x - 1, y, p)) {
+        return true;
       }
     }
     if (y >= 0) {
-      if (this->positionClearUD(x, y - 1) && !this->checkMarked(x, y - 1)) {
-        if (findPath(x, y - 1, p)) {
-          return true;
-        }
+      std::cout << "Down: " << boolalpha << this->positionClearUD(x, y - 1)
+                << ' ' << !this->checkMarked(x, y - 1) << std::endl;
+      if (this->positionClearUD(x, y - 1) && !this->checkMarked(x, y - 1) &&
+          findPath(x, y - 1, p)) {
+        return true;
       }
     }
 
-    p->getPathOut()->push(curr);
-    // p->setPathOut(*p->getPathOut());
+    // when left, a point, which should be dead end, is not
+    // but other dead ends are?
+    // causes spazzing
+
+    std::cout << "Can't go LRUD @: " << p->getPathOut()->front().x << ","
+              << p->getPathOut()->front().y << std::endl;
+    p->getPathOut()->pop();
     return false;
   }
 }

@@ -1,9 +1,9 @@
 #ifndef ACTOR_H_
 #define ACTOR_H_
 #include "GraphObject.h"
+#include <iterator>
 #include <queue>
 #include <vector>
-#include <iterator>
 
 // constants must be here according to spec
 const unsigned int MAX_BOULDERS = 9;
@@ -106,6 +106,10 @@ public:
   struct coord { // for queue
     int x;
     int y;
+
+    coord() {}
+
+    coord(int x, int y) : x(x), y(y) {}
   };
 
   Protester(int imageID, StudentWorld &game, Tunnelman &TM);
@@ -139,16 +143,16 @@ public:
   int getLastPerpendicular();
 
   std::queue<coord> *getLocations();
-    void setLocations(std::queue<coord> &location);
+  void setLocations(std::queue<coord> &location);
   std::queue<coord> *getPathOut();
-    void setPathOut(std::queue<coord> &path);
-    void setLeave();
-    
-    std::vector<coord> *getVisited();
-    void setVisited(std::vector<coord> &visited);
-    
-    // bool compareCoord (const coord &member, const coord &visited);
-    bool checkVisited(int x, int y);
+  void setPathOut(std::queue<coord> &path);
+  void setLeave();
+
+  std::vector<coord> *getVisited();
+  void setVisited(std::vector<coord> &visited);
+
+  // bool compareCoord (const coord &member, const coord &visited);
+  bool checkVisited(int x, int y);
 
   double getUnitsFromTM();
   bool getFacingTM();
@@ -183,7 +187,7 @@ private:
   // queue
   std::queue<coord> m_locations;
   std::queue<coord> m_pathOut;
-    std::vector<coord> m_visited;
+  std::vector<coord> m_visited;
 };
 
 class RegularProtester : public Protester {
