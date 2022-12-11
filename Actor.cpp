@@ -234,8 +234,6 @@ Protester::Protester(int imageID, StudentWorld &game, Tunnelman &TM)
   this->initMovesCurrDir();
 }
 
-void Protester::doSomething() { return; }
-
 void Protester::setLeaveStatus(bool leaveOilField) {
   m_leaveOilField = leaveOilField;
 }
@@ -756,9 +754,11 @@ void RegularProtester::doSomething() {
 
 RegularProtester::~RegularProtester() {}
 
-// visible should be false
+// OilBarrel::OilBarrel(int x, int y, StudentWorld &world)
+//     : Actor(false, TID_BARREL, x, y, right, 2), m_world(&world) {}
+
 OilBarrel::OilBarrel(int x, int y, StudentWorld &world)
-    : Actor(false, TID_BARREL, x, y, right, 2), m_world(&world) {}
+    : Consumable(world, false, TID_BARREL, x, y, right) {}
 
 void OilBarrel::doSomething() {
   if (this->getAlive()) {
@@ -780,8 +780,6 @@ void OilBarrel::doSomething() {
     }
   }
 }
-
-StudentWorld *OilBarrel::getWorld() { return this->m_world; }
 
 OilBarrel::~OilBarrel() {}
 
@@ -870,5 +868,18 @@ void Squirt::incTicks() { this->ticks_alive++; }
 StudentWorld *Squirt::getWorld() { return this->m_world; }
 
 Squirt::~Squirt() {}
+
+Consumable::Consumable(StudentWorld &world, bool visible, int imageID,
+                       int startX, int startY, Direction dir,
+                       unsigned int depth)
+    : Actor(visible, imageID, startX, startY, dir, depth), m_world(&world) {}
+
+StudentWorld *Consumable::getWorld() { return this->m_world; }
+
+int Consumable::getTicks() { return this->ticks_existed; }
+
+void Consumable::incTicks() { this->ticks_existed++; }
+
+Consumable::~Consumable() {}
 
 // gold it 10 points

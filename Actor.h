@@ -223,27 +223,39 @@ private:
 
 class Consumable : public Actor {
 public:
-  Consumable(bool visible, int imageID, int startX, int startY, Direction dir,
-             unsigned int depth, double size);
+  Consumable(StudentWorld &world, bool visible, int imageID, int startX,
+             int startY, Direction dir, unsigned int depth = 2);
+
   virtual void doSomething() = 0;
+  StudentWorld *getWorld();
+  int getTicks();
+  void incTicks();
+
   virtual ~Consumable();
 
 private:
   StudentWorld *m_world;
   int ticks_existed = 0;
-}
+};
 
-class OilBarrel : public Actor {
+// class OilBarrel : public Actor {
+// public:
+//   OilBarrel(int x, int y, StudentWorld &world);
+
+//   virtual void doSomething();
+//   virtual ~OilBarrel();
+
+//   StudentWorld *getWorld();
+
+// private:
+//   StudentWorld *m_world;
+// };
+
+class OilBarrel : public Consumable {
 public:
   OilBarrel(int x, int y, StudentWorld &world);
-
   virtual void doSomething();
   virtual ~OilBarrel();
-
-  StudentWorld *getWorld();
-
-private:
-  StudentWorld *m_world;
 };
 
 class Sonar : public Actor {

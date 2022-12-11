@@ -536,14 +536,14 @@ bool StudentWorld::dirtObstructsSpawn(Actor *object) {
       }
     }
   } else if (object->getDirection() == GraphObject::left) {
-    for (int x = -1; x > -4; x--) {
+    for (int x = -1; x > -5; x--) {
       for (int y = 0; y < 4; y++) {
         if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
           return true;
         }
       }
     }
-  } else if (object->getDirection() == GraphObject::down) {
+  } else if (object->getDirection() == GraphObject::right) {
     for (int x = 4; x < 8; x++) {
       for (int y = 0; y < 4; y++) {
         if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
@@ -602,15 +602,15 @@ void StudentWorld::trySpawnProtestor() {
 
 void StudentWorld::decProtesterCount() { this->num_protestors--; }
 
-void StudentWorld::spawnGoldNuggets(){
-  int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
-  int x, y;
+void StudentWorld::spawnGoldNuggets() {
+  // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
+  // int x, y;
 
-  for (int i = 0; i < num_nuggs; i++) {
-    this->generateActorCoords(x, y);
-    std::cout << x << ',' << y << std::endl;
-    this->actors.push_back(std::move(new GoldNugget(x, y, *this)));
-  }
+  // for (int i = 0; i < num_nuggs; i++) {
+  //   this->generateActorCoords(x, y);
+  //   std::cout << x << ',' << y << std::endl;
+  //   this->actors.push_back(std::move(new GoldNugget(x, y, *this)));
+  // }
 }
 
 StudentWorld::~StudentWorld() {}
