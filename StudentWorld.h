@@ -77,6 +77,7 @@ public:
 
   // helper for gold
   void spawnGoldNuggets();
+  bool bribe(Actor* gold);
 
   ~StudentWorld();
 

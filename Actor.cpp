@@ -98,7 +98,9 @@ void Tunnelman::decSonar() { this->m_sonarCharge--; }
 
 int Tunnelman::getSonarCharge() { return this->m_sonarCharge; }
 
-void Tunnelman::setGold(int gold) { this->m_gold = gold; }
+void Tunnelman::incGold() { this->m_gold++; }
+
+void Tunnelman::decGold() { this->m_gold--; }
 
 int Tunnelman::getGold() { return this->m_gold; }
 
@@ -162,6 +164,11 @@ void Tunnelman::doSomething() {
       this->setAlive(false);
       break;
     case KEY_PRESS_TAB:
+      if (this->getGold()) {
+        this->decGold();
+        this->getWorld()->getActors().push_back(std::move(new GoldNugget(
+            true, this->getX(), this->getY(), *this->getWorld())));
+      }
       break;
     case KEY_PRESS_SPACE:
       if (this->getWaterUnits() > 0) {
@@ -872,5 +879,38 @@ int Consumable::getTicks() { return this->ticks_existed; }
 void Consumable::incTicks() { this->ticks_existed++; }
 
 Consumable::~Consumable() {}
+
+GoldNugget::GoldNugget(bool placed_by_player, int x, int y, StudentWorld &world)
+    : Consumable(world, placed_by_player, TID_GOLD, x, y, right),
+      was_palced(placed_by_player) {}
+
+void GoldNugget::doSomething() {
+  if (this->getAlive()) {
+    if (this->was_palced) {
+      if (this->getTicks() == this->getWorld()->getTicks()) {
+        this->setAlive(false);
+      } else if (this->getWorld()->bribe(this)) {
+        this->setAlive(false);
+        this->getWorld()->playSound(SOUND_PROTESTER_FOUND_GOLD);
+      }
+    } else if (this->isVisible()) {
+      if (inRange(this->getX(), this->getY(),
+                  this->getWorld()->getPlayer()->getX(),
+                  this->getWorld()->getPlayer()->getY(), 3)) {
+        this->setAlive(false);
+        this->getWorld()->playSound(SOUND_GOT_GOODIE);
+        this->getWorld()->increaseScore(10);
+        this->getWorld()->getPlayer()->incGold();
+      }
+    } else if (inRange(this->getX(), this->getY(),
+                       this->getWorld()->getPlayer()->getX(),
+                       this->getWorld()->getPlayer()->getY(), 4)) {
+      this->setVisible(true);
+    }
+    this->incTicks();
+  }
+}
+
+GoldNugget::~GoldNugget() {}
 
 // gold it 10 points

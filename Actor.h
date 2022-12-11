@@ -92,8 +92,9 @@ public:
   void decSonar();
   int getSonarCharge();
 
-  void setGold(int gold);
   int getGold();
+  void incGold();
+  void decGold();
 
   virtual void doSomething();
   virtual ~Tunnelman();
@@ -268,7 +269,16 @@ public:
   void doSomething();
 };
 
-// class GoldNugget: public Consumable{};
+class GoldNugget : public Consumable {
+public:
+  GoldNugget(bool place_by_player, int x, int y, StudentWorld &world);
+  ~GoldNugget();
+
+  void doSomething();
+
+private:
+  bool was_palced;
+};
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);
 
