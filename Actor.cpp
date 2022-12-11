@@ -170,15 +170,15 @@ void Tunnelman::doSomething() {
 
         Direction dir;
         int x, y;
-        if (this->getX() == 60 && this->getDirection() == right) {
+        if (this->getX() >= 56 && this->getDirection() == right) {
           break;
-        } else if (this->getX() == 0 && this->getDirection() == left) {
+        } else if (this->getX() <= 3 && this->getDirection() == left) {
           break;
-        } else if (this->getY() == 60 && this->getDirection() == up) {
+        } else if (this->getY() >= 56 && this->getDirection() == up) {
           break;
-        } else if (this->getY() == 0 && this->getDirection() == down) {
+        } else if (this->getY() <= 3 && this->getDirection() == down) {
           break;
-        } else if (this->getWorld()->dirtObstructs(this) ||
+        } else if (this->getWorld()->dirtObstructsSpawn(this) ||
                    this->getWorld()->boulderObstructs(this)) {
           break;
         } else {
@@ -209,8 +209,8 @@ void Tunnelman::doSomething() {
     case 'z':
     case 'Z':
       if (this->getSonarCharge() > 0) {
-          this->getWorld()->playSound(SOUND_SONAR);
-          this->decSonar();
+        this->getWorld()->playSound(SOUND_SONAR);
+        this->decSonar();
         for (auto actor : this->getWorld()->getActors()) {
           if ((actor->getID() == TID_BARREL) || (actor->getID() == TID_GOLD)) {
             if (inRange(this->getX(), this->getY(), actor->getX(),
@@ -319,99 +319,6 @@ bool Protester::checkVisited(int x, int y) {
   }
   return false;
 }
-
-// =================================================================================================
-/*
-void Protester::setLeave() {
-    //
-    std::queue<coord> path;
-    coord curr;
-    for (int i = this->getX(); i <= 60; i++) {
-        curr.x = i;
-        curr.y = this->getY();
-        path.push(curr);
-    }
-    for (int j = this->getY(); j <= 60; j++) {
-        curr.x = 60;
-        curr.y = j;
-        path.push(curr);
-    }
-    this->setPathOut(path);
-    //
-    //
-    std::queue<coord> loc;
-    std::queue<coord> path;
-    std::vector<coord>* vis;
-    coord curr;
-    coord start;
-    start.x = this->getX();
-    start.y = this->getY();
-    this->getLocations()->push(start);
-    //loc.push(start);     // pushing the starting point
-    // this->getWorld()->setEarthDiscovered(this->getX(), this->getY()); // set
-start as discovered this->getVisited()->push_back(start);
-    //while (!loc.empty()) {
-    while (!this->getLocations()->empty()) {
-        this->getWorld()->playSound(SOUND_FOUND_OIL);
-        coord temp;
-        curr = this->getLocations()->front();
-        this->getLocations()->pop();
-        this->moveTo(curr.x, curr.y);           // temp
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        path.push(curr);    // add onto the path queue
-        this->setPathOut(path);
-        if (curr.x == 60 && curr.y == 60) {
-            this->setPathOut(path);
-            return; // done with path
-        }
-        if (this->getWorld()->positionClearLR(curr.x - 1, curr.y) &&
-!this->getWorld()->inBoulderArea(curr.x - 1, curr.y)) { if (!checkVisited(curr.x
-- 1, curr.y)) { temp.x = curr.x - 1; temp.y = curr.y;
-                this->getLocations()->push(temp);
-                vis = this->getVisited();
-                vis->push_back(temp);
-                this->setVisited(*vis);
-            }
-        }
-        if (this->getWorld()->positionClearLR(curr.x + 4,curr.y) &&
-!this->getWorld()->inBoulderArea(curr.x + 4, curr.y)) { if (!checkVisited(curr.x
-+ 1, curr.y)) { temp.x = curr.x + 1; temp.y = curr.y;
-                this->getLocations()->push(temp);
-                vis = this->getVisited();
-                vis->push_back(temp);
-                this->setVisited(*vis);
-            }
-        }
-        if (this->getWorld()->positionClearUD(curr.x, curr.y + 4) &&
-!this->getWorld()->inBoulderArea(curr.x, curr.y + 4)) { if
-(!checkVisited(curr.x, curr.y + 1)) { temp.x = curr.x; temp.y = curr.y + 1;
-                this->getLocations()->push(temp);
-                vis = this->getVisited();
-                vis->push_back(temp);
-                this->setVisited(*vis);
-            }
-        }
-        if (this->getWorld()->positionClearUD(curr.x, curr.y - 1) &&
-!this->getWorld()->inBoulderArea(curr.x, curr.y - 1)) {
-            // if (!this->getWorld()->getEarthDiscovered(curr.x, curr.y - 1)) {
-            if (!checkVisited(curr.x, curr.y - 1)) {
-                temp.x = curr.x;
-                temp.y = curr.y - 1;
-                // loc.push(temp);
-                // this->setLocations(loc);
-                this->getLocations()->push(temp);
-                // this->getWorld()->setEarthDiscovered(curr.x, curr.y - 1);
-                // this->getVisited()->push_back(temp);
-                vis = this->getVisited();
-                vis->push_back(temp);
-                this->setVisited(*vis);
-            }
-        }
-    }
-    //
-}
-*/
-// =================================================================================================
 
 double Protester::getUnitsFromTM() {
   int x = this->getX() - m_TM->getX();
@@ -963,3 +870,8 @@ void Squirt::incTicks() { this->ticks_alive++; }
 StudentWorld *Squirt::getWorld() { return this->m_world; }
 
 Squirt::~Squirt() {}
+
+// sometimes they dont leave
+
+// add gold
+// add hardcore

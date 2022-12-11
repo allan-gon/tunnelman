@@ -6,7 +6,6 @@
 #include <stack>
 #include <string>
 #include <vector>
-
 using namespace std;
 
 // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
@@ -113,8 +112,6 @@ void StudentWorld::placeBarrels() {
 }
 
 void StudentWorld::addProtestor() {
-  // TODO: figure out how many protestors to add
-  // for now just adds one protester
   this->actors.push_back(std::move(new RegularProtester(*this, *player)));
   this->num_protestors++;
   this->ticks_since_p_spawn = 0;
@@ -198,6 +195,7 @@ void StudentWorld::cleanUp() {
     delete this->actors[i]; // de-alloc
   }
   this->actors.clear(); // empty
+  this->num_protestors = 0;
 }
 
 // dirtExistsVisible
@@ -339,6 +337,7 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
   // consider adding tunnelman to actor vector
   if (inRange(this->player->getX(), this->player->getY(), x, y, 3)) {
     this->player->setAlive(false);
+    this->playSound(SOUND_PLAYER_GIVE_UP);
     return; // Nothing else must be checked since player died
   }
 
@@ -458,6 +457,7 @@ bool StudentWorld::squirtAnnoyActors(int x, int y) {
             this->increaseScore(250);
           }
           p->setLeaveStatus(true);
+          this->getMarked()->clear();
           this->findPath(p->getX(), p->getY(), p);
         }
         return true;
@@ -519,6 +519,43 @@ bool StudentWorld::findPath(int x, int y, Protester *p) {
   }
 }
 
+bool StudentWorld::dirtObstructsSpawn(Actor *object) {
+  if (object->getDirection() == GraphObject::up) {
+    for (int y = 4; y < 8; y++) {
+      for (int x = 0; x < 4; x++) {
+        if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
+          return true;
+        }
+      }
+    }
+  } else if (object->getDirection() == GraphObject::down) {
+    for (int y = -1; y > -4; y--) {
+      for (int x = 0; x < 4; x++) {
+        if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
+          return true;
+        }
+      }
+    }
+  } else if (object->getDirection() == GraphObject::left) {
+    for (int x = -1; x > -4; x--) {
+      for (int y = 0; y < 4; y++) {
+        if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
+          return true;
+        }
+      }
+    }
+  } else if (object->getDirection() == GraphObject::down) {
+    for (int x = 4; x < 8; x++) {
+      for (int y = 0; y < 4; y++) {
+        if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 bool StudentWorld::dirtObstructs(Actor *object) {
   int dir_modifier[4] = {4, -4, -4, 4};
   bool is_vertical = false;
@@ -567,3 +604,8 @@ void StudentWorld::trySpawnProtestor() {
 void StudentWorld::decProtesterCount() { this->num_protestors--; }
 
 StudentWorld::~StudentWorld() {}
+
+// kiiling protester > 1 by squirt seems to
+// make it so they don't leave but stop?
+// looks like just the >1 protestor is killed
+// by squirt fails to leave
