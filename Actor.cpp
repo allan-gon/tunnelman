@@ -805,12 +805,12 @@ void Sonar::doSomething() {
 Sonar::~Sonar() {}
 
 WaterPool::WaterPool(int x, int y, StudentWorld &world)
-    : Actor(true, TID_WATER_POOL, x, y, right, 2), m_world(&world) {}
+    : Consumable(world, true, TID_WATER_POOL, x, y, right) {}
 
 void WaterPool::doSomething() {
   if (this->getAlive()) {
 
-    if (this->ticks_existed == this->getWorld()->getTicks()) {
+    if (this->getTicks() == this->getWorld()->getTicks()) {
       this->setAlive(false);
     } else if (inRange(this->getX(), this->getY(),
                        this->getWorld()->getPlayer()->getX(),
@@ -820,11 +820,9 @@ void WaterPool::doSomething() {
       this->getWorld()->getPlayer()->incWater5();
       this->getWorld()->increaseScore(100);
     }
-    this->ticks_existed++;
+    this->incTicks();
   }
 }
-
-StudentWorld *WaterPool::getWorld() { return this->m_world; }
 
 WaterPool::~WaterPool() {}
 

@@ -253,31 +253,24 @@ public:
   virtual ~Sonar();
 };
 
-// class Sonar : public Actor {
+class WaterPool : public Consumable {
+public:
+  WaterPool(int x, int y, StudentWorld &world);
+  virtual void doSomething();
+  virtual ~WaterPool();
+};
+
+// class WaterPool : public Actor {
 // public:
-//   Sonar(StudentWorld &world);
-
+//   WaterPool(int x, int y, StudentWorld &world);
 //   virtual void doSomething();
-//   virtual ~Sonar();
-
+//   virtual ~WaterPool();
 //   StudentWorld *getWorld();
 
 // private:
 //   StudentWorld *m_world;
 //   int ticks_existed = 0;
 // };
-
-class WaterPool : public Actor {
-public:
-  WaterPool(int x, int y, StudentWorld &world);
-  virtual void doSomething();
-  virtual ~WaterPool();
-  StudentWorld *getWorld();
-
-private:
-  StudentWorld *m_world;
-  int ticks_existed = 0;
-};
 
 class Squirt : public Actor {
 public:
