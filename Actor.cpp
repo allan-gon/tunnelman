@@ -871,7 +871,4 @@ StudentWorld *Squirt::getWorld() { return this->m_world; }
 
 Squirt::~Squirt() {}
 
-// sometimes they dont leave
-
-// add gold
-// add hardcore
+// gold it 10 points

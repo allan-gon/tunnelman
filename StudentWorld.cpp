@@ -8,8 +8,6 @@
 #include <vector>
 using namespace std;
 
-// int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
-
 GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
 }
@@ -122,6 +120,7 @@ int StudentWorld::init() {
   this->populateField();
   this->placeBoulders();
   this->placeBarrels();
+  this->spawnGoldNuggets();
   this->addProtestor();
 
   this->calcLifetimeTicks();
@@ -602,6 +601,17 @@ void StudentWorld::trySpawnProtestor() {
 }
 
 void StudentWorld::decProtesterCount() { this->num_protestors--; }
+
+void StudentWorld::spawnGoldNuggets(){
+  int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
+  int x, y;
+
+  for (int i = 0; i < num_nuggs; i++) {
+    this->generateActorCoords(x, y);
+    std::cout << x << ',' << y << std::endl;
+    this->actors.push_back(std::move(new GoldNugget(x, y, *this)));
+  }
+}
 
 StudentWorld::~StudentWorld() {}
 

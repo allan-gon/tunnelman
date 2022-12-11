@@ -221,6 +221,18 @@ public:
 private:
 };
 
+class Consumable : public Actor {
+public:
+  Consumable(bool visible, int imageID, int startX, int startY, Direction dir,
+             unsigned int depth, double size);
+  virtual void doSomething() = 0;
+  virtual ~Consumable();
+
+private:
+  StudentWorld *m_world;
+  int ticks_existed = 0;
+}
+
 class OilBarrel : public Actor {
 public:
   OilBarrel(int x, int y, StudentWorld &world);
@@ -260,7 +272,6 @@ private:
   int ticks_existed = 0;
 };
 
-// TODO: everythin in squirt class
 class Squirt : public Actor {
 public:
   Squirt(int x, int y, Direction dir, StudentWorld &world);
@@ -276,6 +287,8 @@ private:
   int ticks_alive = 0;
   StudentWorld *m_world;
 };
+
+// class GoldNugget: public Consumable{};
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);
 

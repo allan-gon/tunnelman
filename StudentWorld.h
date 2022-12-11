@@ -75,6 +75,9 @@ public:
   void trySpawnProtestor();
   void decProtesterCount();
 
+  // helper for gold
+  void spawnGoldNuggets();
+
   ~StudentWorld();
 
 private:
