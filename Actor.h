@@ -3,6 +3,7 @@
 #include "GraphObject.h"
 #include <iterator>
 #include <queue>
+#include <stack>
 #include <vector>
 
 // constants must be here according to spec
@@ -170,6 +171,22 @@ public:
   virtual void doSomething() = 0;
   virtual ~Protester();
 
+  std::stack<coord> &getStackPath() { return this->stack_path; }
+
+  void convPathQueue() {
+    for (; this->getStackPath().empty() == false; this->getStackPath().pop()) {
+      this->getPathOut()->push(this->getStackPath().top());
+    }
+
+    for (; this->getPathOut()->empty() == false; this->getPathOut()->pop()){
+      this->getStackPath().push(this->getPathOut()->front());
+    }
+
+    for (; this->getStackPath().empty() == false; this->getStackPath().pop()) {
+      this->getPathOut()->push(this->getStackPath().top());
+    }
+  }
+
 private:
   bool m_leaveOilField = false;
   int m_ticksToWait =
@@ -188,6 +205,8 @@ private:
   std::queue<coord> m_locations;
   std::queue<coord> m_pathOut;
   std::vector<coord> m_visited;
+
+  std::stack<coord> stack_path;
 };
 
 class RegularProtester : public Protester {

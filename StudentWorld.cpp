@@ -5,13 +5,13 @@
 #include <random>
 #include <string>
 #include <vector>
+
+#include <queue>
+#include <stack>
+
 using namespace std;
 
-// In-argueably my condition doesn't catch this
-
-// int num_boulders = min((this->getLevel() / 2) + 2, MAX_BOULDERS);
 // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
-// int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
 
 GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
@@ -311,13 +311,16 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
       if (!dynamic_cast<Protester *>(actor)->getLeaveStatus()) {
         if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
           this->playSound(SOUND_SONAR);
-          std::cout << "Pos hit: " << actor->getX() << ',' << actor->getY()
-                    << std::endl;
           dynamic_cast<Protester *>(actor)->setLeaveStatus(true);
           // dynamic_cast<Protester*>(actor)->setLeave();
           this->getMarked()->clear();
+
+          ofstream file("test.txt", std::ios::app);
+
           this->findPath(actor->getX(), actor->getY(),
-                         dynamic_cast<Protester *>(actor));
+                         dynamic_cast<Protester *>(actor), file);
+          file << "------------------------------------------\n";
+          file.close();
         }
       }
     }
@@ -352,13 +355,18 @@ bool StudentWorld::checkMarked(int x, int y) {
 
 std::vector<Protester::coord> *StudentWorld::getMarked() { return &m_marked; }
 
-bool StudentWorld::findPath(int x, int y, Protester *p) {
+bool StudentWorld::findPath(int x, int y, Protester *p, ostream &file) {
+  file << "Went to: " << x << ',' << y << "\n";
+
   Protester::coord curr(x, y);
   this->getMarked()->push_back(curr);
-  p->getPathOut()->push(curr);
+  // p->getPathOut()->push(curr);
+  p->getStackPath().push(curr);
 
   if (x == 60 && y == 60) { //  if at end
-    p->getPathOut()->pop(); // removed the 1st pos as it's garbage
+    p->convPathQueue();
+    file << "Found way out\n";
+    // p->getPathOut()->pop(); // removed the 1st pos as it's garbage
 
     // ofstream file("test.txt", std::ios::app);
     // queue<Protester::coord> other;
@@ -381,52 +389,45 @@ bool StudentWorld::findPath(int x, int y, Protester *p) {
     // }
 
     return true;
-  } else { // not found way out
-           // mark position
-
+  } else {
     if (y <= 60) {
-      // std::cout << "Up: " << boolalpha << this->positionClearUD(x, y + 4) <<
-      // ' '
-      //           << !this->checkMarked(x, y + 1) << std::endl;
+      file << "Trying Up\n";
       if (this->positionClearUD(x, y + 4) && !this->checkMarked(x, y + 1) &&
-          findPath(x, y + 1, p)) {
+          findPath(x, y + 1, p, file)) {
         return true;
       }
     }
     if (x <= 60) {
-      // std::cout << "Right: " << boolalpha << this->positionClearLR(x + 4, y)
-      //           << ' ' << !this->checkMarked(x + 1, y) << std::endl;
+      file << "Trying Right\n";
       if (this->positionClearLR(x + 4, y) && !this->checkMarked(x + 1, y) &&
-          findPath(x + 1, y, p)) {
+          findPath(x + 1, y, p, file)) {
         return true;
       }
     }
     if (x >= 0) {
-      // std::cout << "Left: " << boolalpha << this->positionClearLR(x - 1, y)
-      //           << ' ' << !this->checkMarked(x - 1, y) << std::endl;
+      file << "Trying Left\n";
       if (this->positionClearLR(x - 1, y) && !this->checkMarked(x - 1, y) &&
-          findPath(x - 1, y, p)) {
+          findPath(x - 1, y, p, file)) {
         return true;
       }
     }
     if (y >= 0) {
-      // std::cout << "Down: " << boolalpha << this->positionClearUD(x, y - 1)
-      //           << ' ' << !this->checkMarked(x, y - 1) << std::endl;
+      file << "Trying Down\n";
       if (this->positionClearUD(x, y - 1) && !this->checkMarked(x, y - 1) &&
-          findPath(x, y - 1, p)) {
+          findPath(x, y - 1, p, file)) {
         return true;
       }
     }
 
-    // when left, a point, which should be dead end, is not
-    // but other dead ends are?
-    // causes spazzing
+    file << "Backtracking. Deadend: " << p->getStackPath().top().x << ','
+         << p->getStackPath().top().y << "\n";
 
-    // std::cout << "Can't go LRUD @: " << p->getPathOut()->front().x << ","
-    //           << p->getPathOut()->front().y << std::endl;
-    p->getPathOut()->pop();
+    // p->getPathOut()->pop();
+    p->getStackPath().pop();
     return false;
   }
 }
+// the reverse order makes no sense
+// it's only sometimes that way
 
 StudentWorld::~StudentWorld() {}

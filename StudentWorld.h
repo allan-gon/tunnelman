@@ -4,6 +4,7 @@
 #include "Actor.h"
 #include "GameConstants.h"
 #include "GameWorld.h"
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -28,7 +29,7 @@ public:
   int inTMy(int y);
 
   void setEarthDiscovered(int x, int y);
-    bool getEarthDiscovered(int x, int y);
+  bool getEarthDiscovered(int x, int y);
 
   // helper functions for tunnelman
   bool dirtExistsVisible(int x, int y);
@@ -41,12 +42,12 @@ public:
   void boulderAnnoyActors(int x, int y);
   bool boulderObstructs(Actor *object);
   void generateBoulderCoords(int &x, int &y);
-    
-    bool inBoulderArea(int x, int y);
-    
-    bool checkMarked(int x, int y);
-    bool findPath(int x, int y, Protester* p);
-    std::vector<Protester::coord>* getMarked();
+
+  bool inBoulderArea(int x, int y);
+
+  bool checkMarked(int x, int y);
+  bool findPath(int x, int y, Protester *p, std::ostream &file);
+  std::vector<Protester::coord> *getMarked();
 
   ~StudentWorld();
 
@@ -58,7 +59,7 @@ private:
   // container for all actors other than tunnel man and earth
   std::vector<Actor *> actors;
   Tunnelman *player = nullptr;
-    std::vector<Protester::coord> m_marked;
+  std::vector<Protester::coord> m_marked;
 };
 
 #endif // STUDENTWORLD_H_
