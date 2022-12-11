@@ -238,19 +238,6 @@ private:
   int ticks_existed = 0;
 };
 
-// class OilBarrel : public Actor {
-// public:
-//   OilBarrel(int x, int y, StudentWorld &world);
-
-//   virtual void doSomething();
-//   virtual ~OilBarrel();
-
-//   StudentWorld *getWorld();
-
-// private:
-//   StudentWorld *m_world;
-// };
-
 class OilBarrel : public Consumable {
 public:
   OilBarrel(int x, int y, StudentWorld &world);
@@ -258,19 +245,27 @@ public:
   virtual ~OilBarrel();
 };
 
-class Sonar : public Actor {
+class Sonar : public Consumable {
 public:
   Sonar(StudentWorld &world);
 
   virtual void doSomething();
   virtual ~Sonar();
-
-  StudentWorld *getWorld();
-
-private:
-  StudentWorld *m_world;
-  int ticks_existed = 0;
 };
+
+// class Sonar : public Actor {
+// public:
+//   Sonar(StudentWorld &world);
+
+//   virtual void doSomething();
+//   virtual ~Sonar();
+
+//   StudentWorld *getWorld();
+
+// private:
+//   StudentWorld *m_world;
+//   int ticks_existed = 0;
+// };
 
 class WaterPool : public Actor {
 public:

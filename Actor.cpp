@@ -784,11 +784,11 @@ void OilBarrel::doSomething() {
 OilBarrel::~OilBarrel() {}
 
 Sonar::Sonar(StudentWorld &world)
-    : Actor(true, TID_SONAR, 0, 60, right, 2), m_world(&world) {}
+    : Consumable(world, true, TID_SONAR, 0, 60, right) {}
 
 void Sonar::doSomething() {
   if (this->getAlive()) {
-    if (this->ticks_existed == this->getWorld()->getTicks()) {
+    if (this->getTicks() == this->getWorld()->getTicks()) {
       this->setAlive(false);
     } else if (inRange(this->getX(), this->getY(),
                        this->getWorld()->getPlayer()->getX(),
@@ -798,12 +798,11 @@ void Sonar::doSomething() {
       this->getWorld()->playSound(SOUND_GOT_GOODIE);
       this->getWorld()->increaseScore(75);
     }
-    this->ticks_existed++;
+    this->incTicks();
   }
 }
-Sonar::~Sonar() {}
 
-StudentWorld *Sonar::getWorld() { return this->m_world; }
+Sonar::~Sonar() {}
 
 WaterPool::WaterPool(int x, int y, StudentWorld &world)
     : Actor(true, TID_WATER_POOL, x, y, right, 2), m_world(&world) {}
