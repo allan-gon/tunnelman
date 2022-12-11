@@ -74,7 +74,9 @@ StudentWorld *Entity::getWorld() { return m_game; }
 
 void Entity::doSomething() { return; }
 
-void Entity::annoy() { return; }
+void Protester::takeDamage(int amount) {
+  this->setHitPoints(this->getHitPoints() - amount);
+}
 
 Entity::~Entity() {}
 
@@ -84,15 +86,15 @@ Tunnelman::Tunnelman(StudentWorld &game)
   this->setHitPoints(10);
 }
 
-void Tunnelman::setWaterUnits(int waterUnits) {
-  this->m_waterUnits = waterUnits;
-}
+void Tunnelman::incWater5() { this->m_waterUnits = this->m_waterUnits + 5; }
+
+void Tunnelman::decWater() { this->m_waterUnits--; }
 
 int Tunnelman::getWaterUnits() { return this->m_waterUnits; }
 
-void Tunnelman::setSonarCharge(int sonarCharge) {
-  this->m_sonarCharge = sonarCharge;
-}
+void Tunnelman::incSonar() { this->m_sonarCharge++; }
+
+void Tunnelman::decSonar() { this->m_sonarCharge--; }
 
 int Tunnelman::getSonarCharge() { return this->m_sonarCharge; }
 
@@ -162,17 +164,66 @@ void Tunnelman::doSomething() {
     case KEY_PRESS_TAB:
       break;
     case KEY_PRESS_SPACE:
+      if (this->getWaterUnits() > 0) {
+        this->getWorld()->playSound(SOUND_PLAYER_SQUIRT);
+        this->decWater();
+
+        Direction dir;
+        int x, y;
+        if (this->getX() == 60 && this->getDirection() == right) {
+          break;
+        } else if (this->getX() == 0 && this->getDirection() == left) {
+          break;
+        } else if (this->getY() == 60 && this->getDirection() == up) {
+          break;
+        } else if (this->getY() == 0 && this->getDirection() == down) {
+          break;
+        } else if (this->getWorld()->dirtObstructs(this) ||
+                   this->getWorld()->boulderObstructs(this)) {
+          break;
+        } else {
+          if (this->getDirection() == up) {
+            x = this->getX();
+            y = this->getY() + 4;
+            dir = up;
+          } else if (this->getDirection() == down) {
+            x = this->getX();
+            y = this->getY() - 4;
+            dir = down;
+          } else if (this->getDirection() == left) {
+            x = this->getX() - 4;
+            y = this->getY();
+            dir = left;
+          } else if (this->getDirection() == right) {
+            x = this->getX() + 4;
+            y = this->getY();
+            dir = right;
+          }
+
+          this->getWorld()->getActors().push_back(
+              std::move(new Squirt(x, y, dir, *this->getWorld())));
+        }
+      }
       break;
       // =================================================================================================
+    case 'z':
+    case 'Z':
+      if (this->getSonarCharge() > 0) {
+        this->decSonar();
+        for (auto actor : this->getWorld()->getActors()) {
+          if ((actor->getID() == TID_BARREL) || (actor->getID() == TID_GOLD)) {
+            if (inRange(this->getX(), this->getY(), actor->getX(),
+                        actor->getY(), 12)) {
+              actor->setVisible(true);
+            }
+          }
+        }
+      }
+      break;
     default:
       break;
     }
   }
-}
-
-void Tunnelman::annoy() {
-  // possibly should increase annoyance
-  this->setHitPoints(this->getHitPoints() - 100);
 }
 
 Tunnelman::~Tunnelman() {}
@@ -181,7 +232,6 @@ Protester::Protester(int imageID, StudentWorld &game, Tunnelman &TM)
     : Entity(imageID, 60, 60, left, game), m_TM(&TM) {
   this->initMovesCurrDir();
 }
-void Protester::annoy() { return; }
 
 void Protester::doSomething() { return; }
 
@@ -591,6 +641,7 @@ void RegularProtester::doSomething() {
   if (this->getLeaveStatus()) {
     if (this->getX() == 60 && this->getY() == 60) {
       this->setAlive(false);
+      this->getWorld()->decProtesterCount();
     } else {
       coord place;
       if (!this->getPathOut()->empty()) {
@@ -795,6 +846,119 @@ void RegularProtester::doSomething() {
   this->setMovesCurrDir(0);
 }
 
-void RegularProtester::annoy() {}
-
 RegularProtester::~RegularProtester() {}
+
+// visible should be false
+OilBarrel::OilBarrel(int x, int y, StudentWorld &world)
+    : Actor(false, TID_BARREL, x, y, right, 2), m_world(&world) {}
+
+void OilBarrel::doSomething() {
+  if (this->getAlive()) {
+    if (!this->isVisible()) {
+      if (inRange(this->getX(), this->getY(),
+                  this->getWorld()->getPlayer()->getX(),
+                  this->getWorld()->getPlayer()->getY(), 4)) {
+        this->setVisible(true);
+      }
+    } else {
+      if (inRange(this->getX(), this->getY(),
+                  this->getWorld()->getPlayer()->getX(),
+                  this->getWorld()->getPlayer()->getY(), 3)) {
+        this->setAlive(false);
+        this->getWorld()->playSound(SOUND_FOUND_OIL);
+        this->getWorld()->increaseScore(1000);
+        this->getWorld()->decBarrels();
+      }
+    }
+  }
+}
+
+StudentWorld *OilBarrel::getWorld() { return this->m_world; }
+
+OilBarrel::~OilBarrel() {}
+
+Sonar::Sonar(StudentWorld &world)
+    : Actor(true, TID_SONAR, 0, 60, right, 2), m_world(&world) {}
+
+void Sonar::doSomething() {
+  if (this->getAlive()) {
+    if (this->ticks_existed == this->getWorld()->getTicks()) {
+      this->setAlive(false);
+    } else if (inRange(this->getX(), this->getY(),
+                       this->getWorld()->getPlayer()->getX(),
+                       this->getWorld()->getPlayer()->getY(), 3)) {
+      this->setAlive(false);
+      this->getWorld()->getPlayer()->incSonar();
+      this->getWorld()->playSound(SOUND_GOT_GOODIE);
+      this->getWorld()->increaseScore(75);
+    }
+    this->ticks_existed++;
+  }
+}
+Sonar::~Sonar() {}
+
+StudentWorld *Sonar::getWorld() { return this->m_world; }
+
+WaterPool::WaterPool(int x, int y, StudentWorld &world)
+    : Actor(true, TID_WATER_POOL, x, y, right, 2), m_world(&world) {}
+
+void WaterPool::doSomething() {
+  if (this->getAlive()) {
+
+    if (this->ticks_existed == this->getWorld()->getTicks()) {
+      this->setAlive(false);
+    } else if (inRange(this->getX(), this->getY(),
+                       this->getWorld()->getPlayer()->getX(),
+                       this->getWorld()->getPlayer()->getY(), 3)) {
+      this->setAlive(false);
+      this->getWorld()->playSound(SOUND_GOT_GOODIE);
+      this->getWorld()->getPlayer()->incWater5();
+      this->getWorld()->increaseScore(100);
+    }
+    this->ticks_existed++;
+  }
+}
+
+StudentWorld *WaterPool::getWorld() { return this->m_world; }
+
+WaterPool::~WaterPool() {}
+
+Squirt::Squirt(int x, int y, Direction dir, StudentWorld &world)
+    : Actor(true, TID_WATER_SPURT, x, y, dir, 1), m_world(&world) {}
+
+void Squirt::doSomething() {
+  if (this->getAlive()) {
+    if (this->getTicks() == 4) {
+      this->setAlive(false);
+    } else if (this->getWorld()->squirtAnnoyActors(this->getX(),
+                                                   this->getY())) {
+      this->setAlive(false);
+    } else if (this->getWorld()->boulderObstructs(this) ||
+               this->getWorld()->dirtObstructs(this)) {
+      this->setAlive(false);
+    } else {
+      int x_mod = 0;
+      int y_mod = 0;
+      if (this->getDirection() == up) {
+        y_mod++;
+      } else if (this->getDirection() == down) {
+        y_mod--;
+      } else if (this->getDirection() == right) {
+        x_mod++;
+      } else if (this->getDirection() == left) {
+        x_mod--;
+      }
+
+      this->moveTo(this->getX() + x_mod, this->getY() + y_mod);
+    }
+    this->incTicks();
+  }
+}
+
+int Squirt::getTicks() { return this->ticks_alive; }
+
+void Squirt::incTicks() { this->ticks_alive++; }
+
+StudentWorld *Squirt::getWorld() { return this->m_world; }
+
+Squirt::~Squirt() {}

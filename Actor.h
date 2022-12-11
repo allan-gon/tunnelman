@@ -10,6 +10,9 @@
 const unsigned int MAX_BOULDERS = 9;
 const unsigned int MIN_GOLD_NUGGETS = 2;
 const unsigned int MAX_OIL_BARRELS = 21;
+const unsigned int MIN_TICKS_CONSUMABLE = 100;
+const unsigned int MIN_TICKS_SPAWN_PROTESTER = 25;
+const double MAX_PROTESTER = 15.0;
 
 // forward declaration to use studentWorld pointer
 class StudentWorld;
@@ -20,7 +23,6 @@ public:
         unsigned int depth, double size = 1.0);
 
   virtual void doSomething() = 0;
-  virtual void annoy() = 0;
   bool getAlive();
   void setAlive(bool alive);
   virtual ~Actor();
@@ -37,7 +39,6 @@ public:
   virtual void doSomething() { return; };
   bool getDiscovered();
   void setDiscovered(bool discovered);
-  virtual void annoy() { return; }
 
 private:
   bool m_discovered = false; // added for the queue??
@@ -49,7 +50,6 @@ public:
 
   Boulder(int startX, int startY, StudentWorld &world);
   virtual void doSomething();
-  virtual void annoy() { return; }
   State getState() { return this->m_state; }
   void setState(State state);
   StudentWorld *getWorld();
@@ -71,7 +71,6 @@ public:
   virtual void setHitPoints(int hitPoints);
   int getHitPoints();
   virtual void doSomething() = 0;
-  virtual void annoy() = 0;
 
   virtual ~Entity();
 
@@ -85,15 +84,18 @@ public:
   Tunnelman(StudentWorld &game);
 
   // setters & getters
-  void setWaterUnits(int waterUnits);
   int getWaterUnits();
-  void setSonarCharge(int sonarCharge);
+  void incWater5();
+  void decWater();
+
+  void incSonar();
+  void decSonar();
   int getSonarCharge();
+
   void setGold(int gold);
   int getGold();
 
   virtual void doSomething();
-  virtual void annoy();
   virtual ~Tunnelman();
 
 private:
@@ -114,8 +116,6 @@ public:
   };
 
   Protester(int imageID, StudentWorld &game, Tunnelman &TM);
-
-  virtual void annoy() = 0;
 
   void setLeaveStatus(bool leaveOilField);
   bool getLeaveStatus();
@@ -169,6 +169,8 @@ public:
   bool checkPath(int start, int end, int same, bool changeX);
 
   virtual void doSomething() = 0;
+  void takeDamage(int amount);
+
   virtual ~Protester();
 
   std::stack<coord> &getStackPath() { return this->stack_path; }
@@ -178,7 +180,7 @@ public:
       this->getPathOut()->push(this->getStackPath().top());
     }
 
-    for (; this->getPathOut()->empty() == false; this->getPathOut()->pop()){
+    for (; this->getPathOut()->empty() == false; this->getPathOut()->pop()) {
       this->getStackPath().push(this->getPathOut()->front());
     }
 
@@ -213,11 +215,68 @@ class RegularProtester : public Protester {
 public:
   RegularProtester(StudentWorld &game, Tunnelman &TM);
 
-  virtual void annoy();
   virtual void doSomething();
   virtual ~RegularProtester();
 
 private:
 };
+
+class OilBarrel : public Actor {
+public:
+  OilBarrel(int x, int y, StudentWorld &world);
+
+  virtual void doSomething();
+  virtual ~OilBarrel();
+
+  StudentWorld *getWorld();
+
+private:
+  StudentWorld *m_world;
+};
+
+class Sonar : public Actor {
+public:
+  Sonar(StudentWorld &world);
+
+  virtual void doSomething();
+  virtual ~Sonar();
+
+  StudentWorld *getWorld();
+
+private:
+  StudentWorld *m_world;
+  int ticks_existed = 0;
+};
+
+class WaterPool : public Actor {
+public:
+  WaterPool(int x, int y, StudentWorld &world);
+  virtual void doSomething();
+  virtual ~WaterPool();
+  StudentWorld *getWorld();
+
+private:
+  StudentWorld *m_world;
+  int ticks_existed = 0;
+};
+
+// TODO: everythin in squirt class
+class Squirt : public Actor {
+public:
+  Squirt(int x, int y, Direction dir, StudentWorld &world);
+  ~Squirt();
+
+  void doSomething();
+
+  StudentWorld *getWorld();
+  int getTicks();
+  void incTicks();
+
+private:
+  int ticks_alive = 0;
+  StudentWorld *m_world;
+};
+
+bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);
 
 #endif // ACTOR_H_

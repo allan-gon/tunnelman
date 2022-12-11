@@ -15,12 +15,21 @@ GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
 }
 
-bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0) {
+void StudentWorld::calcLifetimeTicks() {
+  this->consumable_ticks =
+      max(MIN_TICKS_CONSUMABLE, 300 - 10 * this->getLevel());
+}
+
+bool inRange(int x1, int y1, int x2, int y2, float max_dist) {
   float dist = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
   return dist <= max_dist;
 }
 
 bool intersectShaft(int x) { return ((x > 26) && (x < 34)); }
+
+Tunnelman *StudentWorld::getPlayer() { return this->player; }
+
+void StudentWorld::decBarrels() { this->num_barrels_left--; }
 
 void StudentWorld::clear4by4(int x, int y) {
   // assumes x, y are valid (ae. not nullptr and wont raise index out of bounds)
@@ -46,12 +55,11 @@ void StudentWorld::populateField() {
   }
 }
 
-void StudentWorld::generateBoulderCoords(int &x, int &y) {
-  // TODO: ask about range
+void StudentWorld::generateActorCoords(int &x, int &y, int y_left = 0) {
   std::random_device rd;  // obtain random number from harware
   std::mt19937 gen(rd()); // seed the generator
   std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
-  std::uniform_int_distribution<> y_dist(20, 56);
+  std::uniform_int_distribution<> y_dist(y_left, 56);
   bool generated = false;
   bool broke = false;
   int temp_x, temp_y;
@@ -86,31 +94,63 @@ void StudentWorld::placeBoulders() {
   int x, y;
 
   for (int i = 0; i < num_boulders; i++) {
-    this->generateBoulderCoords(x, y);
+    this->generateActorCoords(x, y, 20);
     this->actors.push_back(std::move(new Boulder(x, y, *this)));
     this->clear4by4(x, y);
   }
 }
 
-void StudentWorld::addProtestors() {
+void StudentWorld::placeBarrels() {
+  int num_oil = min(2 + this->getLevel(), MAX_OIL_BARRELS);
+  this->num_barrels_left = num_oil;
+  int x, y;
+
+  for (int i = 0; i < num_oil; i++) {
+    this->generateActorCoords(x, y);
+    std::cout << x << ',' << y << std::endl;
+    this->actors.push_back(std::move(new OilBarrel(x, y, *this)));
+  }
+}
+
+void StudentWorld::addProtestor() {
   // TODO: figure out how many protestors to add
   // for now just adds one protester
   this->actors.push_back(std::move(new RegularProtester(*this, *player)));
+  this->num_protestors++;
+  this->ticks_since_p_spawn = 0;
 }
 
 int StudentWorld::init() {
   this->player = std::move(new Tunnelman(*this));
-
   this->populateField();
   this->placeBoulders();
-  this->addProtestors();
+  this->placeBarrels();
+  this->addProtestor();
+
+  this->calcLifetimeTicks();
+  this->placeSonar();
+
+  this->calcG();
+  this->calcT();
+  this->calcP();
 
   // TODO: spawn all other NEs
   return GWSTATUS_CONTINUE_GAME;
 }
 
 int StudentWorld::move() {
-  // TODO: update text
+  // TODO: justification is not set
+  string stats = "Lvl: " + to_string(this->getLevel()) +
+                 " Lives: " + to_string(this->getLives()) +
+                 " Hlth: " + to_string(this->player->getHitPoints() * 10) +
+                 "% Wtr: " + to_string(this->player->getWaterUnits()) +
+                 " Gld: " + to_string(this->player->getGold()) +
+                 " Oil Left: " + to_string(this->num_barrels_left) +
+                 " Sonar: " + to_string(this->player->getSonarCharge()) +
+                 " Scr: " + to_string(this->getScore());
+  this->setGameStatText(stats);
+  this->trySpawnSonarWater();
+  this->trySpawnProtestor();
   player->doSomething();
 
   // destruct actors who are dead on this tick. Have all others
@@ -127,6 +167,7 @@ int StudentWorld::move() {
 
   if (this->player->getAlive()) {  // alive
     if (!this->num_barrels_left) { // finished level
+      this->increaseScore(1000);
       this->playSound(SOUND_FINISHED_LEVEL);
       return GWSTATUS_FINISHED_LEVEL;
     }
@@ -307,6 +348,7 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
         (actor->getID() == TID_HARD_CORE_PROTESTER)) {
       if (!dynamic_cast<Protester *>(actor)->getLeaveStatus()) {
         if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
+          this->increaseScore(500);
           this->playSound(SOUND_SONAR);
           dynamic_cast<Protester *>(actor)->setLeaveStatus(true);
           this->getMarked()->clear();
@@ -328,6 +370,97 @@ bool StudentWorld::inBoulderArea(int x, int y) {
             return true;
           }
         }
+      }
+    }
+  }
+  return false;
+}
+
+void StudentWorld::placeSonar() {
+  this->actors.push_back(std::move(new Sonar(*this)));
+}
+
+int StudentWorld::getTicks() { return this->consumable_ticks; }
+
+std::vector<Actor *> &StudentWorld::getActors() { return this->actors; }
+
+void StudentWorld::calcG() { this->G = this->getLevel() * 25 + 300; }
+
+void StudentWorld::trySpawnSonarWater() {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> create(1, this->G);
+  std::uniform_int_distribution<> sonar(1, 5);
+
+  bool broke = false;
+
+  if (create(gen) == 1) {               // should place something
+    if (sonar(gen) == 1) {              // should place sonar
+      for (auto actor : this->actors) { // check there's not already a sonar
+        if (actor->getID() == TID_SONAR) {
+          broke = true;
+          break;
+        }
+      }
+      if (!broke) { // can place sonar
+        this->placeSonar();
+      }
+    } else {
+      this->placeWater();
+    }
+  }
+}
+
+bool StudentWorld::isClear4x4(int x, int y) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (this->field[x + i][y + j] == nullptr) {
+      } else if (this->field[x + i][y + j]->isVisible()) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+void StudentWorld::placeWater() {
+  // gen x, y
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dist(0, 59);
+
+  int x, y;
+  bool generated = false;
+
+  while (!generated) {
+    x = dist(gen);
+    y = dist(gen);
+    if (this->isClear4x4(x, y)) {
+      this->actors.push_back(std::move(new WaterPool(x, y, *this)));
+      generated = true;
+    }
+  }
+}
+
+bool StudentWorld::squirtAnnoyActors(int x, int y) {
+  for (auto actor : this->actors) {
+    if (actor->getID() == TID_PROTESTER ||
+        actor->getID() == TID_HARD_CORE_PROTESTER) {
+      if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
+        Protester *p = dynamic_cast<Protester *>(actor);
+        this->playSound(SOUND_PROTESTER_ANNOYED);
+        p->takeDamage(2);
+        if (p->getHitPoints() <= 0) {
+          this->playSound(SOUND_PROTESTER_GIVE_UP);
+          if (p->getID() == TID_PROTESTER) {
+            this->increaseScore(100);
+          } else {
+            this->increaseScore(250);
+          }
+          p->setLeaveStatus(true);
+          this->findPath(p->getX(), p->getY(), p);
+        }
+        return true;
       }
     }
   }
@@ -385,5 +518,52 @@ bool StudentWorld::findPath(int x, int y, Protester *p) {
     return false;
   }
 }
+
+bool StudentWorld::dirtObstructs(Actor *object) {
+  int dir_modifier[4] = {4, -4, -4, 4};
+  bool is_vertical = false;
+  if ((object->getDirection() == 1) || (object->getDirection() == 2)) {
+    is_vertical = true;
+  }
+
+  if (is_vertical) {
+    for (int i = 0; i < 4; i++) {
+
+      if (this->dirtExistsVisible(
+              object->getX() + i,
+              object->getY() + dir_modifier[object->getDirection() - 1])) {
+        return true;
+      }
+    }
+  } else {
+    for (int i = 0; i < 4; i++) {
+      if (this->dirtExistsVisible(object->getX() +
+                                      dir_modifier[object->getDirection() - 1],
+                                  object->getY() + i))
+        return true;
+    }
+  }
+
+  return false;
+}
+
+void StudentWorld::calcT() {
+  this->T = max(MIN_TICKS_SPAWN_PROTESTER, 200 - this->getLevel());
+}
+
+void StudentWorld::calcP() {
+  this->P = min(MAX_PROTESTER, 2 + this->getLevel() * 1.5);
+}
+
+void StudentWorld::trySpawnProtestor() {
+  if (this->num_protestors < this->P) {
+    if (this->ticks_since_p_spawn >= this->T) {
+      this->addProtestor();
+    }
+  }
+  this->ticks_since_p_spawn++;
+}
+
+void StudentWorld::decProtesterCount() { this->num_protestors--; }
 
 StudentWorld::~StudentWorld() {}
