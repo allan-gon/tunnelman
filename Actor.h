@@ -260,32 +260,12 @@ public:
   virtual ~WaterPool();
 };
 
-// class WaterPool : public Actor {
-// public:
-//   WaterPool(int x, int y, StudentWorld &world);
-//   virtual void doSomething();
-//   virtual ~WaterPool();
-//   StudentWorld *getWorld();
-
-// private:
-//   StudentWorld *m_world;
-//   int ticks_existed = 0;
-// };
-
-class Squirt : public Actor {
+class Squirt : public Consumable {
 public:
   Squirt(int x, int y, Direction dir, StudentWorld &world);
   ~Squirt();
 
   void doSomething();
-
-  StudentWorld *getWorld();
-  int getTicks();
-  void incTicks();
-
-private:
-  int ticks_alive = 0;
-  StudentWorld *m_world;
 };
 
 // class GoldNugget: public Consumable{};

@@ -827,7 +827,7 @@ void WaterPool::doSomething() {
 WaterPool::~WaterPool() {}
 
 Squirt::Squirt(int x, int y, Direction dir, StudentWorld &world)
-    : Actor(true, TID_WATER_SPURT, x, y, dir, 1), m_world(&world) {}
+    : Consumable(world, true, TID_WATER_SPURT, x, y, dir, 1) {}
 
 void Squirt::doSomething() {
   if (this->getAlive()) {
@@ -857,12 +857,6 @@ void Squirt::doSomething() {
     this->incTicks();
   }
 }
-
-int Squirt::getTicks() { return this->ticks_alive; }
-
-void Squirt::incTicks() { this->ticks_alive++; }
-
-StudentWorld *Squirt::getWorld() { return this->m_world; }
 
 Squirt::~Squirt() {}
 
