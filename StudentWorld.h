@@ -63,6 +63,7 @@ public:
   // helper for squirt
   bool squirtAnnoyActors(int x, int y);
   bool dirtObstructs(Actor *object);
+  bool dirtObstructsSpawn(Actor *object);
 
   // helper for protester
   bool inBoulderArea(int x, int y);
