@@ -4,7 +4,6 @@
 #include "Actor.h"
 #include "GameConstants.h"
 #include "GameWorld.h"
-#include <fstream>
 #include <string>
 #include <vector>
 
@@ -46,7 +45,7 @@ public:
   bool inBoulderArea(int x, int y);
 
   bool checkMarked(int x, int y);
-  bool findPath(int x, int y, Protester *p, std::ostream &file);
+  bool findPath(int x, int y, Protester *p);
   std::vector<Protester::coord> *getMarked();
 
   ~StudentWorld();

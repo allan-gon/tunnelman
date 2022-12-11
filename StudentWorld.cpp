@@ -1,13 +1,11 @@
 #include "StudentWorld.h"
 #include "Actor.h"
 #include <algorithm> // this guy's needed because find cries without
-#include <fstream>
+#include <queue>
 #include <random>
+#include <stack>
 #include <string>
 #include <vector>
-
-#include <queue>
-#include <stack>
 
 using namespace std;
 
@@ -140,7 +138,6 @@ int StudentWorld::move() {
 }
 
 void StudentWorld::cleanUp() {
-  std::cout << "----------------------\n";
   // frees memory from tunnelman + fix dangling pointer
   delete this->player;
   this->player = nullptr;
@@ -312,15 +309,9 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
         if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
           this->playSound(SOUND_SONAR);
           dynamic_cast<Protester *>(actor)->setLeaveStatus(true);
-          // dynamic_cast<Protester*>(actor)->setLeave();
           this->getMarked()->clear();
-
-          ofstream file("test.txt", std::ios::app);
-
           this->findPath(actor->getX(), actor->getY(),
-                         dynamic_cast<Protester *>(actor), file);
-          file << "------------------------------------------\n";
-          file.close();
+                         dynamic_cast<Protester *>(actor));
         }
       }
     }
@@ -355,79 +346,44 @@ bool StudentWorld::checkMarked(int x, int y) {
 
 std::vector<Protester::coord> *StudentWorld::getMarked() { return &m_marked; }
 
-bool StudentWorld::findPath(int x, int y, Protester *p, ostream &file) {
-  file << "Went to: " << x << ',' << y << "\n";
-
+bool StudentWorld::findPath(int x, int y, Protester *p) {
   Protester::coord curr(x, y);
   this->getMarked()->push_back(curr);
-  // p->getPathOut()->push(curr);
   p->getStackPath().push(curr);
 
   if (x == 60 && y == 60) { //  if at end
     p->convPathQueue();
-    file << "Found way out\n";
-    // p->getPathOut()->pop(); // removed the 1st pos as it's garbage
-
-    // ofstream file("test.txt", std::ios::app);
-    // queue<Protester::coord> other;
-
-    // while (!p->getPathOut()->empty()) {
-    //   p->getPathOut()->pop();
-
-    //   curr = p->getPathOut()->front();
-
-    //   file << curr.x << ',' << curr.y << "\n";
-
-    //   other.push(curr);
-    // }
-
-    // while (!other.empty()) {
-    //   curr = other.front();
-    //   other.pop();
-
-    //   p->getPathOut()->push(curr);
-    // }
 
     return true;
   } else {
     if (y <= 60) {
-      file << "Trying Up\n";
       if (this->positionClearUD(x, y + 4) && !this->checkMarked(x, y + 1) &&
-          findPath(x, y + 1, p, file)) {
+          findPath(x, y + 1, p)) {
         return true;
       }
     }
     if (x <= 60) {
-      file << "Trying Right\n";
       if (this->positionClearLR(x + 4, y) && !this->checkMarked(x + 1, y) &&
-          findPath(x + 1, y, p, file)) {
+          findPath(x + 1, y, p)) {
         return true;
       }
     }
     if (x >= 0) {
-      file << "Trying Left\n";
       if (this->positionClearLR(x - 1, y) && !this->checkMarked(x - 1, y) &&
-          findPath(x - 1, y, p, file)) {
+          findPath(x - 1, y, p)) {
         return true;
       }
     }
     if (y >= 0) {
-      file << "Trying Down\n";
       if (this->positionClearUD(x, y - 1) && !this->checkMarked(x, y - 1) &&
-          findPath(x, y - 1, p, file)) {
+          findPath(x, y - 1, p)) {
         return true;
       }
     }
 
-    file << "Backtracking. Deadend: " << p->getStackPath().top().x << ','
-         << p->getStackPath().top().y << "\n";
-
-    // p->getPathOut()->pop();
     p->getStackPath().pop();
     return false;
   }
 }
-// the reverse order makes no sense
-// it's only sometimes that way
 
 StudentWorld::~StudentWorld() {}
