@@ -537,14 +537,14 @@ bool StudentWorld::dirtObstructsSpawn(Actor *object) {
       }
     }
   } else if (object->getDirection() == GraphObject::left) {
-    for (int x = -1; x > -4; x--) {
+    for (int x = -1; x > -5; x--) {
       for (int y = 0; y < 4; y++) {
         if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
           return true;
         }
       }
     }
-  } else if (object->getDirection() == GraphObject::down) {
+  } else if (object->getDirection() == GraphObject::right) {
     for (int x = 4; x < 8; x++) {
       for (int y = 0; y < 4; y++) {
         if (this->dirtExistsVisible(object->getX() + x, object->getY() + y)) {
