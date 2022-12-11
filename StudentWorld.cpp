@@ -349,7 +349,7 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
       if (!dynamic_cast<Protester *>(actor)->getLeaveStatus()) {
         if (inRange(actor->getX(), actor->getY(), x, y, 3)) {
           this->increaseScore(500);
-          this->playSound(SOUND_SONAR);
+          this->playSound(SOUND_PROTESTER_GIVE_UP);
           dynamic_cast<Protester *>(actor)->setLeaveStatus(true);
           this->getMarked()->clear();
           this->findPath(actor->getX(), actor->getY(),

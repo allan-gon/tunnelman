@@ -209,7 +209,8 @@ void Tunnelman::doSomething() {
     case 'z':
     case 'Z':
       if (this->getSonarCharge() > 0) {
-        this->decSonar();
+          this->getWorld()->playSound(SOUND_SONAR);
+          this->decSonar();
         for (auto actor : this->getWorld()->getActors()) {
           if ((actor->getID() == TID_BARREL) || (actor->getID() == TID_GOLD)) {
             if (inRange(this->getX(), this->getY(), actor->getX(),
