@@ -37,11 +37,11 @@ public:
 
   // required because parent is pure virtual
   virtual void doSomething() { return; };
-  bool getDiscovered();
-  void setDiscovered(bool discovered);
-
-private:
-  bool m_discovered = false; // added for the queue??
+//  bool getDiscovered();
+//  void setDiscovered(bool discovered);
+//
+//private:
+//  bool m_discovered = false; // added for the queue??
 };
 
 class Boulder : public Actor {
@@ -121,6 +121,7 @@ public:
   bool getLeaveStatus();
 
   void setWaitTicks(int numWait);
+  void initWaitTicks();
   int getWaitTicks();
 
   void setRestState(bool restState);
@@ -167,6 +168,8 @@ public:
 
   void protesterYells();
   bool checkPath(int start, int end, int same, bool changeX);
+  int getPathSize();
+    void clear(std::queue<coord> & q, std::stack<coord> & s);
 
   virtual void doSomething() = 0;
   void takeDamage(int amount);
@@ -191,10 +194,9 @@ public:
 
 private:
   bool m_leaveOilField = false;
-  int m_ticksToWait =
-      5; // max(0, 3 - current_level_number / 4);          // added (temp)
+  int m_ticksToWait;
   bool m_restState = false;
-  int m_restTickCount = m_ticksToWait;
+  int m_restTickCount;
   int m_numMoveCurrDir;
   Tunnelman *m_TM;
   int m_lastShouted = 16; // make bools for status & initialize to 0 & true
@@ -220,6 +222,21 @@ public:
 
 private:
 };
+
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+class HardCoreProtester : public Protester {
+public:
+    HardCoreProtester(StudentWorld &game, Tunnelman &TM);
+    
+    virtual void doSomething();
+    void calcM();
+    
+    virtual ~HardCoreProtester();
+    
+private:
+    int M_legalMoves;
+};
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 class OilBarrel : public Actor {
 public:

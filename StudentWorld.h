@@ -6,6 +6,7 @@
 #include "GameWorld.h"
 #include <string>
 #include <vector>
+#include <fstream>
 
 class StudentWorld : public GameWorld {
 public:
@@ -14,7 +15,8 @@ public:
   void populateField();
   void placeBoulders();
   void addProtestor();
-
+  void addHardCore();
+    
   virtual int init();
 
   virtual int move();
@@ -27,8 +29,8 @@ public:
   int inTMx(int x);
   int inTMy(int y);
 
-  void setEarthDiscovered(int x, int y);
-  bool getEarthDiscovered(int x, int y);
+//  void setEarthDiscovered(int x, int y);
+//  bool getEarthDiscovered(int x, int y);
 
   // helper functions for tunnelman
   bool dirtExistsVisible(int x, int y);
@@ -68,12 +70,13 @@ public:
   // helper for protester
   bool inBoulderArea(int x, int y);
   bool checkMarked(int x, int y);
-  bool findPath(int x, int y, Protester *p);
+  bool findPath(int startX, int startY, Protester *p, int endX = 60, int endY = 60);
   std::vector<Protester::coord> *getMarked();
   void calcT();
   void calcP();
   void trySpawnProtestor();
   void decProtesterCount();
+    void calcProb();
 
   ~StudentWorld();
 
@@ -89,6 +92,7 @@ private:
   std::vector<Protester::coord> m_marked;
   int consumable_ticks;
   int G, T, P;
+    int probabilityOfHardcore;
 };
 
 #endif // STUDENTWORLD_H_

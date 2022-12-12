@@ -2,6 +2,7 @@
 #include "StudentWorld.h"
 #include <iostream>
 #include <random>
+#include <fstream>
 
 Actor::Actor(bool visible, int imageID, int startX, int startY, Direction dir,
              unsigned int depth, double size)
@@ -18,9 +19,9 @@ Actor::~Actor(){};
 Earth::Earth(int startX, int startY)
     : Actor(true, TID_EARTH, startX, startY, right, 3, 0.25) {}
 
-bool Earth::getDiscovered() { return m_discovered; }
-
-void Earth::setDiscovered(bool discovered) { m_discovered = discovered; }
+//bool Earth::getDiscovered() { return m_discovered; }
+//
+//void Earth::setDiscovered(bool discovered) { m_discovered = discovered; }
 
 Boulder::Boulder(int startX, int startY, StudentWorld &world)
     : Actor(true, TID_BOULDER, startX, startY, down, 1), m_world(&world) {}
@@ -243,6 +244,10 @@ void Protester::setLeaveStatus(bool leaveOilField) {
 bool Protester::getLeaveStatus() { return m_leaveOilField; }
 
 void Protester::setWaitTicks(int numWait) { m_ticksToWait = numWait; }
+
+void Protester::initWaitTicks() {
+    m_ticksToWait = max(0, 3 - this->getWorld()->getLevel() / 4);
+}
 
 int Protester::getWaitTicks() { return m_ticksToWait; }
 
@@ -527,11 +532,24 @@ bool Protester::checkPath(int start, int end, int same, bool changeX) {
   return true;
 }
 
+int Protester::getPathSize() { return m_pathOut.size(); }
+
+void Protester::clear( std::queue<coord> &q , std::stack<coord> &s)
+{
+   std::queue<coord> emptyQ;
+   std::swap( q, emptyQ );
+    
+    std::stack<coord> emptyS;
+    std::swap(s, emptyS);
+}
+
 Protester::~Protester() {}
 
 RegularProtester::RegularProtester(StudentWorld &game, Tunnelman &TM)
     : Protester(TID_PROTESTER, game, TM) {
   this->setHitPoints(5);
+  this->initWaitTicks();
+  this->setRestTickCount(this->getWaitTicks());
 }
 
 void RegularProtester::doSomething() {
@@ -755,6 +773,274 @@ void RegularProtester::doSomething() {
 }
 
 RegularProtester::~RegularProtester() {}
+
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+HardCoreProtester::HardCoreProtester(StudentWorld &game, Tunnelman &TM)
+    : Protester(TID_HARD_CORE_PROTESTER, game, TM) {
+  this->setHitPoints(20);
+  this->initWaitTicks();
+  this->setRestTickCount(this->getWaitTicks());
+  this->calcM();
+}
+
+void HardCoreProtester::doSomething() {
+    // 1) 2)
+    if (this->getAlive()) {
+      if (this->getRestState()) {
+        this->decRestTickCount();
+        return;
+      } else {
+        this->setRestTickCount(this->getWaitTicks());
+        this->setRestState(true);
+      }
+    }
+    // 3)
+    if (this->getLeaveStatus()) {
+      if (this->getX() == 60 && this->getY() == 60) {
+        this->setAlive(false);
+        this->getWorld()->decProtesterCount();
+      } else {
+        coord place;
+        if (!this->getPathOut()->empty()) {
+          place = this->getPathOut()->front();
+          if (place.x > this->getX()) {
+            this->setDirection(right);
+          } else if (place.x < this->getX()) {
+            this->setDirection(left);
+          } else if (place.y > this->getY()) {
+            this->setDirection(up);
+          } else if (place.y > this->getY()) {
+            this->setDirection(down);
+          }
+          this->moveTo(place.x, place.y);
+          this->getPathOut()->pop();
+        }
+      }
+      return;
+    }
+    // 4)
+    bool yelled = false;
+    if (this->getUnitsFromTM() <= 4 && this->getFacingTM()) {
+      if (this->getLastShouted() > 15) {
+        this->protesterYells();
+        yelled = true;
+        return;
+      }
+    }
+    if (!yelled) {
+      // increments the m_lastShouted when there is no shouting that tick
+      this->setLastShouted(this->getLastShouted() + 1);
+    }
+//    // 5) CELL PHONE LOCATION
+//        // if HC is more than 4 units away from TM
+//    if (this->getUnitsFromTM() > 4) {
+//        // clear the getMarked vector
+//        this->getWorld()->getMarked()->clear();
+//        // clears previous path
+//        this->clear(*this->getPathOut(), this->getStackPath());
+//        // find the path starting at the protester position ending at the TM position
+//        this->getWorld()->findPath(this->getX(), this->getY(), this, this->getTM()->getX(), this->getTM()->getY());
+//        // if the path size (number of moves) is less than or equal to the number of legal moves
+//        if (M_legalMoves >= this->getPathSize()) {
+//
+//            coord place;
+//            // if the path is not empty,
+//            if (!this->getPathOut()->empty()) {
+//                // get the position to move to
+//              place = this->getPathOut()->front();
+//              if (place.x > this->getX()) {
+//                this->setDirection(right);
+//              } else if (place.x < this->getX()) {
+//                this->setDirection(left);
+//              } else if (place.y > this->getY()) {
+//                this->setDirection(up);
+//              } else if (place.y > this->getY()) {
+//                this->setDirection(down);
+//              }
+//                // move
+//              this->moveTo(place.x, place.y);
+//                // pop the position
+//              this->getPathOut()->pop();
+//                return;
+//        }
+//    }
+    // 6)
+    if ((this->getUnitsFromTM() > 4) && (this->lineOfSightTM())) {
+      if (this->turnsTowardsTM()) {
+        this->setMovesCurrDir(0);
+        return;
+      }
+    }
+    // 7)
+    bool turned = false;
+    this->setMovesCurrDir(this->getMovesCurrDir() - 1);
+    if (this->getMovesCurrDir() <= 0) {
+      // stops spazing out
+      if (this->getFacingTM() && this->getUnitsFromTM() <= 4 &&
+          (this->getX() == this->getTM()->getX() ||
+           this->getY() == this->getTM()->getY())) {
+        return;
+      }
+      bool decided = false;
+      Direction randDir;
+      // currDir & both perpendicular Dirs are blocked, go back opposite way
+      randDir = this->checkTrapped(this->getDirection());
+      if (randDir != none) {
+        decided = true;
+      }
+      while (!decided) {
+        randDir = Direction(rand() % 4 + 1);
+        decided = this->chooseDirection(randDir);
+      }
+      // after decided is true
+      this->setDirection(randDir);
+      this->initMovesCurrDir();
+    }
+    // 8)
+    else {
+      Direction currDir = this->getDirection();
+      Direction nextDir = none;
+      switch (currDir) {
+      case up:
+      case down:
+        if (this->getWorld()->positionClearLR(this->getX() + 4, this->getY()) ||
+            this->getWorld()->positionClearLR(this->getX() - 1, this->getY())) {
+          if (!this->getWorld()->positionClearLR(this->getX() + 4,
+                                                 this->getY())) {
+            nextDir = left;
+          } else if (!this->getWorld()->positionClearLR(this->getX() - 1,
+                                                        this->getY())) {
+            nextDir = right;
+          } else {
+            int num = rand() % 2;
+            if (num == 0) {
+              nextDir = left;
+            } else {
+              nextDir = right;
+            }
+          }
+        }
+        break;
+      case right:
+      case left:
+        if (this->getWorld()->positionClearUD(this->getX(), this->getY() + 4) ||
+            this->getWorld()->positionClearUD(this->getX(), this->getY() - 1)) {
+          if (!this->getWorld()->positionClearUD(this->getX(),
+                                                 this->getY() + 4)) {
+            nextDir = down;
+          } else if (!this->getWorld()->positionClearUD(this->getX(),
+                                                        this->getY() - 1)) {
+            nextDir = up;
+          } else {
+            int num = rand() % 2;
+            if (num == 0) {
+              nextDir = down;
+            } else {
+              nextDir = up;
+            }
+          }
+        }
+        break;
+      default:
+        break;
+      }
+      if (nextDir != none) {
+        if (this->getLastPerpendicular() > 200) {
+          turned = true;
+          this->setDirection(nextDir);
+          this->setLastPerpendicular(0);
+          this->initMovesCurrDir();
+        }
+      }
+    }
+    if (!turned) {
+      this->setLastPerpendicular(this->getLastPerpendicular() + 1);
+    }
+    // 9)
+    Direction currDir = this->getDirection();
+    switch (currDir) {
+    case up:
+      if (this->getY() != 60 &&
+          this->getWorld()->positionClearUD(this->getX(), this->getY() + 4)) {
+        if (!this->getFacingTM() ||
+            this->checkTMUD(this->getX(), this->getY() + 4,
+                            up)) { // not facing TM or facing, checked = true
+          if (this->getUnitsFromTM() >= 4) {
+            if (!this->getWorld()->inBoulderArea(this->getX(),
+                                                 this->getY() + 1)) {
+              this->moveTo(this->getX(), this->getY() + 1);
+            } else {
+              this->setMovesCurrDir(0);
+            }
+          }
+        }
+        return;
+      }
+      break;
+    case down:
+      if (this->getY() != 0 &&
+          this->getWorld()->positionClearUD(this->getX(), this->getY() - 1)) {
+        if (!this->getFacingTM() ||
+            this->checkTMUD(this->getX(), this->getY() - 4, down)) {
+          if (this->getUnitsFromTM() >= 4) {
+            if (!this->getWorld()->inBoulderArea(this->getX(),
+                                                 this->getY() - 1)) {
+              this->moveTo(this->getX(), this->getY() - 1);
+            } else {
+              this->setMovesCurrDir(0);
+            }
+          }
+        }
+        return;
+      }
+      break;
+    case right:
+      if (this->getX() != 60 &&
+          this->getWorld()->positionClearLR(this->getX() + 4, this->getY())) {
+        if (!this->getFacingTM() ||
+            this->checkTMLR(this->getX() + 4, this->getY())) {
+          if (this->getUnitsFromTM() >= 4) {
+            if (!this->getWorld()->inBoulderArea(this->getX() + 1,
+                                                 this->getY())) {
+              this->moveTo(this->getX() + 1, this->getY());
+            } else {
+              this->setMovesCurrDir(0);
+            }
+          }
+        }
+        return;
+      }
+      break;
+    case left:
+      if (this->getX() != 0 &&
+          this->getWorld()->positionClearLR(this->getX() - 1, this->getY())) {
+        if (!this->getFacingTM() ||
+            this->checkTMLR(this->getX() - 4, this->getY())) {
+          if (this->getUnitsFromTM() >= 4) {
+            if (!this->getWorld()->inBoulderArea(this->getX() - 1,
+                                                 this->getY())) {
+              this->moveTo(this->getX() - 1, this->getY());
+            } else {
+              this->setMovesCurrDir(0);
+            }
+          }
+        }
+        return;
+      }
+      break;
+    default:
+      break;
+    }
+    // 10)
+    this->setMovesCurrDir(0);
+}
+
+void HardCoreProtester::calcM() {
+    this->M_legalMoves = 16 + (this->getWorld()->getLevel()) * 2;
+}
+
+HardCoreProtester::~HardCoreProtester() {}
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 // visible should be false
 OilBarrel::OilBarrel(int x, int y, StudentWorld &world)
