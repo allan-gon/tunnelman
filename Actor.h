@@ -13,6 +13,8 @@ const unsigned int MAX_OIL_BARRELS = 21;
 const unsigned int MIN_TICKS_CONSUMABLE = 100;
 const unsigned int MIN_TICKS_SPAWN_PROTESTER = 25;
 const double MAX_PROTESTER = 15.0;
+const unsigned int MIN_TICKS_WAIT = 0;
+const unsigned int MAX_PROBABILITY = 90;
 
 // forward declaration to use studentWorld pointer
 class StudentWorld;
@@ -37,11 +39,11 @@ public:
 
   // required because parent is pure virtual
   virtual void doSomething() { return; };
-//  bool getDiscovered();
-//  void setDiscovered(bool discovered);
-//
-//private:
-//  bool m_discovered = false; // added for the queue??
+  //  bool getDiscovered();
+  //  void setDiscovered(bool discovered);
+  //
+  // private:
+  //  bool m_discovered = false; // added for the queue??
 };
 
 class Boulder : public Actor {
@@ -169,7 +171,7 @@ public:
   void protesterYells();
   bool checkPath(int start, int end, int same, bool changeX);
   int getPathSize();
-    void clear(std::queue<coord> & q, std::stack<coord> & s);
+  void clear(std::queue<coord> &q, std::stack<coord> &s);
 
   virtual void doSomething() = 0;
   void takeDamage(int amount);
@@ -226,15 +228,15 @@ private:
 // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 class HardCoreProtester : public Protester {
 public:
-    HardCoreProtester(StudentWorld &game, Tunnelman &TM);
-    
-    virtual void doSomething();
-    void calcM();
-    
-    virtual ~HardCoreProtester();
-    
+  HardCoreProtester(StudentWorld &game, Tunnelman &TM);
+
+  virtual void doSomething();
+  void calcM();
+
+  virtual ~HardCoreProtester();
+
 private:
-    int M_legalMoves;
+  int M_legalMoves;
 };
 // :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

@@ -1,13 +1,12 @@
 #include "StudentWorld.h"
 #include "Actor.h"
 #include <algorithm> // this guy's needed because find cries without
+#include <fstream>
 #include <queue>
 #include <random>
 #include <stack>
 #include <string>
 #include <vector>
-#include <fstream>
-#include <random>
 using namespace std;
 
 // int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
@@ -120,20 +119,19 @@ void StudentWorld::addProtestor() {
 }
 
 void StudentWorld::addHardCore() {
-    this->actors.push_back(std::move(new HardCoreProtester(*this, *player)));
-    this->num_protestors++;
-    this->ticks_since_p_spawn = 0;
+  this->actors.push_back(std::move(new HardCoreProtester(*this, *player)));
+  this->num_protestors++;
+  this->ticks_since_p_spawn = 0;
 }
 
 int StudentWorld::init() {
-    this->calcProb();
-    
+  this->calcProb();
+
   this->player = std::move(new Tunnelman(*this));
   this->populateField();
   this->placeBoulders();
   this->placeBarrels();
   this->addProtestor();
-  this->addHardCore();
 
   this->calcLifetimeTicks();
   this->placeSonar();
@@ -266,7 +264,8 @@ bool StudentWorld::positionClearLR(int x, int y) {
   // do for loop to check the entire position to prevent walking into dirt
   for (int i = 0; i < 4; i++) {
     if (x < 0 || x > 63 || y > 60 || y < 0 ||
-        (field[x][y + i] != nullptr && field[x][y + i]->isVisible()) /* || this->inBoulderArea(x, y)*/) {
+        (field[x][y + i] != nullptr &&
+         field[x][y + i]->isVisible()) /* || this->inBoulderArea(x, y)*/) {
       return false;
     }
   }
@@ -276,7 +275,8 @@ bool StudentWorld::positionClearLR(int x, int y) {
 bool StudentWorld::positionClearUD(int x, int y) {
   for (int i = 0; i < 4; i++) {
     if ((y > 63) || (y < 0) || (x > 63) || (x < 0) ||
-        (field[x + i][y] != nullptr && field[x + i][y]->isVisible()) /* || this->inBoulderArea(x, y)*/) {
+        (field[x + i][y] != nullptr &&
+         field[x + i][y]->isVisible()) /* || this->inBoulderArea(x, y)*/) {
       return false;
     }
   }
@@ -291,13 +291,13 @@ int StudentWorld::inTMy(int y) {
   return (this->player->getY() < y && this->player->getY() + 4 > y);
 }
 
-//void StudentWorld::setEarthDiscovered(int x, int y) {
-//  field[x][y]->setDiscovered(true);
-//}
+// void StudentWorld::setEarthDiscovered(int x, int y) {
+//   field[x][y]->setDiscovered(true);
+// }
 //
-//bool StudentWorld::getEarthDiscovered(int x, int y) {
-//  return field[x][y]->getDiscovered();
-//}
+// bool StudentWorld::getEarthDiscovered(int x, int y) {
+//   return field[x][y]->getDiscovered();
+// }
 
 bool StudentWorld::dirtBelow(int x, int y) {
   // if atleast one dirt block exists directly under 4 blocks from a location
@@ -361,11 +361,12 @@ void StudentWorld::boulderAnnoyActors(int x, int y) {
           this->playSound(SOUND_PROTESTER_GIVE_UP);
           dynamic_cast<Protester *>(actor)->setLeaveStatus(true);
           this->getMarked()->clear();
-          // ofstream file("/Users/chuot/Workspace/TunnelMan/Skeleton/test.txt", std::ios::app);
+          // ofstream file("/Users/chuot/Workspace/TunnelMan/Skeleton/test.txt",
+          // std::ios::app);
           this->findPath(actor->getX(), actor->getY(),
                          dynamic_cast<Protester *>(actor));
-            // file << "-------------------------------" << std::endl;
-            // file.close();
+          // file << "-------------------------------" << std::endl;
+          // file.close();
         }
       }
     }
@@ -471,7 +472,8 @@ bool StudentWorld::squirtAnnoyActors(int x, int y) {
           }
           p->setLeaveStatus(true);
           this->getMarked()->clear();
-            // ofstream file("/Users/chuot/Workspace/TunnelMan/Skeleton/test.txt", std::ios::app);
+          // ofstream file("/Users/chuot/Workspace/TunnelMan/Skeleton/test.txt",
+          // std::ios::app);
           this->findPath(p->getX(), p->getY(), p);
         }
         return true;
@@ -493,8 +495,10 @@ bool StudentWorld::checkMarked(int x, int y) {
 
 std::vector<Protester::coord> *StudentWorld::getMarked() { return &m_marked; }
 
-bool StudentWorld::findPath(int startX, int startY, Protester *p, int endX, int endY) {
-  std::ofstream file("/Users/chuot/Workspace/TunnelMan/Skeleton/test.txt", std::ios::app);
+bool StudentWorld::findPath(int startX, int startY, Protester *p, int endX,
+                            int endY) {
+  std::ofstream file("/Users/chuot/Workspace/TunnelMan/Skeleton/test.txt",
+                     std::ios::app);
   file << startX << "," << startY << std::endl;
   Protester::coord curr(startX, startY);
   this->getMarked()->push_back(curr);
@@ -506,25 +510,29 @@ bool StudentWorld::findPath(int startX, int startY, Protester *p, int endX, int 
     return true;
   } else {
     if (startY <= 60) {
-      if (this->positionClearUD(startX, startY + 4) && !this->checkMarked(startX, startY + 1) &&
+      if (this->positionClearUD(startX, startY + 4) &&
+          !this->checkMarked(startX, startY + 1) &&
           findPath(startX, startY + 1, p, endX, endY)) {
         return true;
       }
     }
     if (startX <= 60) {
-      if (this->positionClearLR(startX + 4, startY) && !this->checkMarked(startX + 1, startY) &&
+      if (this->positionClearLR(startX + 4, startY) &&
+          !this->checkMarked(startX + 1, startY) &&
           findPath(startX + 1, startY, p, endX, endY)) {
         return true;
       }
     }
     if (startX >= 0) {
-      if (this->positionClearLR(startX - 1, startY) && !this->checkMarked(startX - 1, startY) &&
+      if (this->positionClearLR(startX - 1, startY) &&
+          !this->checkMarked(startX - 1, startY) &&
           findPath(startX - 1, startY, p, endX, endY)) {
         return true;
       }
     }
     if (startY >= 0) {
-      if (this->positionClearUD(startX, startY - 1) && !this->checkMarked(startX, startY - 1) &&
+      if (this->positionClearUD(startX, startY - 1) &&
+          !this->checkMarked(startX, startY - 1) &&
           findPath(startX, startY - 1, p, endX, endY)) {
         return true;
       }
@@ -611,13 +619,12 @@ void StudentWorld::calcP() {
 void StudentWorld::trySpawnProtestor() {
   if (this->num_protestors < this->P) {
     if (this->ticks_since_p_spawn >= this->T) {
-        int protesterRand = rand() % 100 + 1;
-        if (protesterRand <= probabilityOfHardcore) {
-            this->addHardCore();
-        }
-        else {
-            this->addProtestor();
-        }
+      int protesterRand = rand() % 100 + 1;
+      if (protesterRand <= probabilityOfHardcore) {
+        this->addHardCore();
+      } else {
+        this->addProtestor();
+      }
     }
   }
   this->ticks_since_p_spawn++;
@@ -626,7 +633,7 @@ void StudentWorld::trySpawnProtestor() {
 void StudentWorld::decProtesterCount() { this->num_protestors--; }
 
 void StudentWorld::calcProb() {
-    probabilityOfHardcore = min(90, this->getLevel() * 10 + 30);
+  probabilityOfHardcore = min(MAX_PROBABILITY, this->getLevel() * 10 + 30);
 }
 
 StudentWorld::~StudentWorld() {}
