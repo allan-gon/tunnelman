@@ -56,7 +56,8 @@ void StudentWorld::generateActorCoords(int &x, int &y, int y_left = 0) {
   std::random_device rd;  // obtain random number from harware
   std::mt19937 gen(rd()); // seed the generator
   std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
-  std::uniform_int_distribution<> y_dist(y_left, 56);
+  // TODO: should be 56 but inBoulderArea bug is horrid
+  std::uniform_int_distribution<> y_dist(y_left, 55);
   bool generated = false;
   bool broke = false;
   int temp_x, temp_y;
