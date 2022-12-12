@@ -99,7 +99,9 @@ void Tunnelman::decSonar() { this->m_sonarCharge--; }
 
 int Tunnelman::getSonarCharge() { return this->m_sonarCharge; }
 
-void Tunnelman::setGold(int gold) { this->m_gold = gold; }
+void Tunnelman::incGold() { this->m_gold++; }
+
+void Tunnelman::decGold() { this->m_gold--; }
 
 int Tunnelman::getGold() { return this->m_gold; }
 
@@ -163,6 +165,11 @@ void Tunnelman::doSomething() {
       this->setAlive(false);
       break;
     case KEY_PRESS_TAB:
+      if (this->getGold()) {
+        this->decGold();
+        this->getWorld()->getActors().push_back(std::move(new GoldNugget(
+            true, this->getX(), this->getY(), *this->getWorld())));
+      }
       break;
     case KEY_PRESS_SPACE:
       if (this->getWaterUnits() > 0) {
@@ -234,8 +241,6 @@ Protester::Protester(int imageID, StudentWorld &game, Tunnelman &TM)
     : Entity(imageID, 60, 60, left, game), m_TM(&TM) {
   this->initMovesCurrDir();
 }
-
-void Protester::doSomething() { return; }
 
 void Protester::setLeaveStatus(bool leaveOilField) {
   m_leaveOilField = leaveOilField;
@@ -774,7 +779,6 @@ void RegularProtester::doSomething() {
 
 RegularProtester::~RegularProtester() {}
 
-// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 HardCoreProtester::HardCoreProtester(StudentWorld &game, Tunnelman &TM)
     : Protester(TID_HARD_CORE_PROTESTER, game, TM) {
   this->setHitPoints(20);
@@ -1041,11 +1045,9 @@ void HardCoreProtester::calcM() {
 }
 
 HardCoreProtester::~HardCoreProtester() {}
-// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-// visible should be false
 OilBarrel::OilBarrel(int x, int y, StudentWorld &world)
-    : Actor(false, TID_BARREL, x, y, right, 2), m_world(&world) {}
+    : Consumable(world, false, TID_BARREL, x, y, right) {}
 
 void OilBarrel::doSomething() {
   if (this->getAlive()) {
@@ -1068,16 +1070,14 @@ void OilBarrel::doSomething() {
   }
 }
 
-StudentWorld *OilBarrel::getWorld() { return this->m_world; }
-
 OilBarrel::~OilBarrel() {}
 
 Sonar::Sonar(StudentWorld &world)
-    : Actor(true, TID_SONAR, 0, 60, right, 2), m_world(&world) {}
+    : Consumable(world, true, TID_SONAR, 0, 60, right) {}
 
 void Sonar::doSomething() {
   if (this->getAlive()) {
-    if (this->ticks_existed == this->getWorld()->getTicks()) {
+    if (this->getTicks() == this->getWorld()->getTicks()) {
       this->setAlive(false);
     } else if (inRange(this->getX(), this->getY(),
                        this->getWorld()->getPlayer()->getX(),
@@ -1087,20 +1087,19 @@ void Sonar::doSomething() {
       this->getWorld()->playSound(SOUND_GOT_GOODIE);
       this->getWorld()->increaseScore(75);
     }
-    this->ticks_existed++;
+    this->incTicks();
   }
 }
+
 Sonar::~Sonar() {}
 
-StudentWorld *Sonar::getWorld() { return this->m_world; }
-
 WaterPool::WaterPool(int x, int y, StudentWorld &world)
-    : Actor(true, TID_WATER_POOL, x, y, right, 2), m_world(&world) {}
+    : Consumable(world, true, TID_WATER_POOL, x, y, right) {}
 
 void WaterPool::doSomething() {
   if (this->getAlive()) {
 
-    if (this->ticks_existed == this->getWorld()->getTicks()) {
+    if (this->getTicks() == this->getWorld()->getTicks()) {
       this->setAlive(false);
     } else if (inRange(this->getX(), this->getY(),
                        this->getWorld()->getPlayer()->getX(),
@@ -1110,16 +1109,14 @@ void WaterPool::doSomething() {
       this->getWorld()->getPlayer()->incWater5();
       this->getWorld()->increaseScore(100);
     }
-    this->ticks_existed++;
+    this->incTicks();
   }
 }
-
-StudentWorld *WaterPool::getWorld() { return this->m_world; }
 
 WaterPool::~WaterPool() {}
 
 Squirt::Squirt(int x, int y, Direction dir, StudentWorld &world)
-    : Actor(true, TID_WATER_SPURT, x, y, dir, 1), m_world(&world) {}
+    : Consumable(world, true, TID_WATER_SPURT, x, y, dir, 1) {}
 
 void Squirt::doSomething() {
   if (this->getAlive()) {
@@ -1150,15 +1147,52 @@ void Squirt::doSomething() {
   }
 }
 
-int Squirt::getTicks() { return this->ticks_alive; }
-
-void Squirt::incTicks() { this->ticks_alive++; }
-
-StudentWorld *Squirt::getWorld() { return this->m_world; }
-
 Squirt::~Squirt() {}
 
-// sometimes they dont leave
+Consumable::Consumable(StudentWorld &world, bool visible, int imageID,
+                       int startX, int startY, Direction dir,
+                       unsigned int depth)
+    : Actor(visible, imageID, startX, startY, dir, depth), m_world(&world) {}
 
-// add gold
-// add hardcore
+StudentWorld *Consumable::getWorld() { return this->m_world; }
+
+int Consumable::getTicks() { return this->ticks_existed; }
+
+void Consumable::incTicks() { this->ticks_existed++; }
+
+Consumable::~Consumable() {}
+
+GoldNugget::GoldNugget(bool placed_by_player, int x, int y, StudentWorld &world)
+    : Consumable(world, placed_by_player, TID_GOLD, x, y, right),
+      was_palced(placed_by_player) {}
+
+void GoldNugget::doSomething() {
+  if (this->getAlive()) {
+    if (this->was_palced) {
+      if (this->getTicks() == this->getWorld()->getTicks()) {
+        this->setAlive(false);
+      } else if (this->getWorld()->bribe(this)) {
+        this->setAlive(false);
+        this->getWorld()->playSound(SOUND_PROTESTER_FOUND_GOLD);
+      }
+    } else if (this->isVisible()) {
+      if (inRange(this->getX(), this->getY(),
+                  this->getWorld()->getPlayer()->getX(),
+                  this->getWorld()->getPlayer()->getY(), 3)) {
+        this->setAlive(false);
+        this->getWorld()->playSound(SOUND_GOT_GOODIE);
+        this->getWorld()->increaseScore(10);
+        this->getWorld()->getPlayer()->incGold();
+      }
+    } else if (inRange(this->getX(), this->getY(),
+                       this->getWorld()->getPlayer()->getX(),
+                       this->getWorld()->getPlayer()->getY(), 4)) {
+      this->setVisible(true);
+    }
+    this->incTicks();
+  }
+}
+
+GoldNugget::~GoldNugget() {}
+
+// gold it 10 points

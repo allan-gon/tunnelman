@@ -94,8 +94,9 @@ public:
   void decSonar();
   int getSonarCharge();
 
-  void setGold(int gold);
   int getGold();
+  void incGold();
+  void decGold();
 
   virtual void doSomething();
   virtual ~Tunnelman();
@@ -225,7 +226,6 @@ public:
 private:
 };
 
-// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 class HardCoreProtester : public Protester {
 public:
   HardCoreProtester(StudentWorld &game, Tunnelman &TM);
@@ -238,62 +238,63 @@ public:
 private:
   int M_legalMoves;
 };
-// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-class OilBarrel : public Actor {
+class Consumable : public Actor {
 public:
-  OilBarrel(int x, int y, StudentWorld &world);
+  Consumable(StudentWorld &world, bool visible, int imageID, int startX,
+             int startY, Direction dir, unsigned int depth = 2);
 
-  virtual void doSomething();
-  virtual ~OilBarrel();
-
+  virtual void doSomething() = 0;
   StudentWorld *getWorld();
+  int getTicks();
+  void incTicks();
+
+  virtual ~Consumable();
 
 private:
   StudentWorld *m_world;
+  int ticks_existed = 0;
 };
 
-class Sonar : public Actor {
+class OilBarrel : public Consumable {
+public:
+  OilBarrel(int x, int y, StudentWorld &world);
+  virtual void doSomething();
+  virtual ~OilBarrel();
+};
+
+class Sonar : public Consumable {
 public:
   Sonar(StudentWorld &world);
 
   virtual void doSomething();
   virtual ~Sonar();
-
-  StudentWorld *getWorld();
-
-private:
-  StudentWorld *m_world;
-  int ticks_existed = 0;
 };
 
-class WaterPool : public Actor {
+class WaterPool : public Consumable {
 public:
   WaterPool(int x, int y, StudentWorld &world);
   virtual void doSomething();
   virtual ~WaterPool();
-  StudentWorld *getWorld();
-
-private:
-  StudentWorld *m_world;
-  int ticks_existed = 0;
 };
 
-// TODO: everythin in squirt class
-class Squirt : public Actor {
+class Squirt : public Consumable {
 public:
   Squirt(int x, int y, Direction dir, StudentWorld &world);
   ~Squirt();
 
   void doSomething();
+};
 
-  StudentWorld *getWorld();
-  int getTicks();
-  void incTicks();
+class GoldNugget : public Consumable {
+public:
+  GoldNugget(bool place_by_player, int x, int y, StudentWorld &world);
+  ~GoldNugget();
+
+  void doSomething();
 
 private:
-  int ticks_alive = 0;
-  StudentWorld *m_world;
+  bool was_palced;
 };
 
 bool inRange(int x1, int y1, int x2, int y2, float max_dist = 6.0);

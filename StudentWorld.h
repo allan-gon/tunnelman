@@ -78,6 +78,10 @@ public:
   void decProtesterCount();
     void calcProb();
 
+  // helper for gold
+  void spawnGoldNuggets();
+  bool bribe(Actor* gold);
+
   ~StudentWorld();
 
 private:

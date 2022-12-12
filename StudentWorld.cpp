@@ -1,15 +1,11 @@
 #include "StudentWorld.h"
 #include "Actor.h"
-#include <algorithm> // this guy's needed because find cries without
-#include <fstream>
 #include <queue>
 #include <random>
 #include <stack>
 #include <string>
 #include <vector>
 using namespace std;
-
-// int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
 
 GameWorld *createStudentWorld(string assetDir) {
   return new StudentWorld(assetDir);
@@ -59,6 +55,7 @@ void StudentWorld::generateActorCoords(int &x, int &y, int y_left = 0) {
   std::random_device rd;  // obtain random number from harware
   std::mt19937 gen(rd()); // seed the generator
   std::uniform_int_distribution<> x_dist(0, 60); // define the range (inclusive)
+  // TODO: should be 56 but inBoulderArea bug is horrid
   std::uniform_int_distribution<> y_dist(y_left, 55);
   bool generated = false;
   bool broke = false;
@@ -107,7 +104,6 @@ void StudentWorld::placeBarrels() {
 
   for (int i = 0; i < num_oil; i++) {
     this->generateActorCoords(x, y);
-    std::cout << x << ',' << y << std::endl;
     this->actors.push_back(std::move(new OilBarrel(x, y, *this)));
   }
 }
@@ -131,6 +127,7 @@ int StudentWorld::init() {
   this->populateField();
   this->placeBoulders();
   this->placeBarrels();
+  this->spawnGoldNuggets();
   this->addProtestor();
 
   this->calcLifetimeTicks();
@@ -636,9 +633,33 @@ void StudentWorld::calcProb() {
   probabilityOfHardcore = min(MAX_PROBABILITY, this->getLevel() * 10 + 30);
 }
 
-StudentWorld::~StudentWorld() {}
+void StudentWorld::spawnGoldNuggets() {
+  int num_nuggs = max((5 - this->getLevel()) / 2, MIN_GOLD_NUGGETS);
+  int x, y;
 
-// kiiling protester > 1 by squirt seems to
-// make it so they don't leave but stop?
-// looks like just the >1 protestor is killed
-// by squirt fails to leave
+  for (int i = 0; i < num_nuggs; i++) {
+    this->generateActorCoords(x, y);
+    this->actors.push_back(std::move(new GoldNugget(false, x, y, *this)));
+  }
+}
+
+bool StudentWorld::bribe(Actor *gold) {
+  for (auto actor : this->actors) {
+    if ((actor->getID() == TID_PROTESTER) ||
+        (actor->getID() == TID_HARD_CORE_PROTESTER)) {
+      if (inRange(actor->getX(), actor->getY(), gold->getX(), gold->getY(),
+                  3)) {
+        int amt = (actor->getID() == TID_PROTESTER) ? 25 : 50;
+        this->increaseScore(amt);
+        Protester *p = dynamic_cast<Protester *>(actor);
+        p->setLeaveStatus(true);
+        this->getMarked()->clear();
+        this->findPath(p->getX(), p->getY(), p);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+StudentWorld::~StudentWorld() {}
